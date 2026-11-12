@@ -1,0 +1,4 @@
+{"_description": "역할: PPO 학습 루프 확인용 가상 질문과 정답입니다. 성능 평가에 사용하지 마세요.", "is_demo": true, "id": "train-001", "question": "해솔시 청년 배움지원금의 연간 지원액은?", "answers": ["20만 원", "200000원"], "evidence_ids": ["demo-youth"]}
+{"_description": "역할: PPO 학습 루프 확인용 가상 질문과 정답입니다. 성능 평가에 사용하지 마세요.", "is_demo": true, "id": "train-002", "question": "해솔시 청년 배움지원금 신청 기간은 몇 월인가요?", "answers": ["3월", "매년 3월"], "evidence_ids": ["demo-youth"]}
+{"_description": "역할: PPO 학습 루프 확인용 가상 질문과 정답입니다. 성능 평가에 사용하지 마세요.", "is_demo": true, "id": "train-003", "question": "해솔시 새출발 주거지원은 매월 얼마를 지원하나요?", "answers": ["15만 원", "150000원"], "evidence_ids": ["demo-housing"]}
+{"_description": "역할: PPO 학습 루프 확인용 가상 질문과 정답입니다. 성능 평가에 사용하지 마세요.", "is_demo": true, "id": "train-004", "question": "해솔시 도서관 학습이용권의 연간 금액은?", "answers": ["8만 원", "80000원"], "evidence_ids": ["demo-library"]}

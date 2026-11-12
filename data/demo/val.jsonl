@@ -1,0 +1,2 @@
+{"_description": "역할: 평가 코드 확인용 가상 질문과 정답입니다. 실제 성능 평가셋이 아닙니다.", "is_demo": true, "id": "val-001", "question": "해솔시 새출발 주거지원의 최대 지원 기간은?", "answers": ["6개월", "최대 6개월"], "evidence_ids": ["demo-housing"]}
+{"_description": "역할: 평가 코드 확인용 가상 질문과 정답입니다. 실제 성능 평가셋이 아닙니다.", "is_demo": true, "id": "val-002", "question": "해솔시 도서관 학습이용권의 접수 방식은?", "answers": ["온라인", "온라인 접수"], "evidence_ids": ["demo-library"]}

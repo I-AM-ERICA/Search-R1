@@ -1,0 +1,12 @@
+# 역할: 모델·학습 산출물·가상환경·개인 인증정보의 Git 포함을 방지합니다.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+outputs/
+.env
+*.pem
+*.key
+data/private/
+data/search_r1/

@@ -1,0 +1,47 @@
+# NQ + HotpotQA full training pool, held-out validation, untouched test split.
+# Prepare first: python scripts/prepare_search_r1.py --download
+model_name: naver-hyperclovax/HyperCLOVAX-SEED-Text-Instruct-1.5B
+model_revision: main
+seed: 42
+load_in_4bit: true
+lora_rank: 8
+lora_alpha: 16
+gradient_checkpointing: true
+corpus_path: data/search_r1/index/wiki18.sqlite
+train_path: data/search_r1/prepared/train.jsonl
+val_path: data/search_r1/prepared/val.jsonl
+test_path: data/search_r1/prepared/test.jsonl
+allow_demo: false
+retriever: sqlite_bm25
+prompt_language: en
+answer_normalization: search_r1
+train_sampling: shuffle
+top_k: 3
+max_seq_length: 3072
+max_prompt_tokens: 768
+max_new_tokens: 192
+max_observation_tokens: 768
+max_searches: 2
+rollout_batch_size: 8
+# CLI --epochs 1 / notebook computes an exact one-pass update budget from prepared rows.
+total_updates: 20000
+ppo_epochs: 2
+actor_lr: 0.00001
+critic_lr: 0.00005
+gamma: 1.0
+gae_lambda: 0.95
+clip_range: 0.2
+value_clip_range: 0.2
+kl_coef: 0.01
+max_grad_norm: 1.0
+format_reward: 0.0
+search_cost: 0.0
+eval_every: 500
+eval_max_samples: 200
+save_every: 500
+max_zero_signal_updates: 3
+warmup_max_examples: 128
+warmup_max_candidates: 2048
+warmup_require_evidence: false
+warmup_skip_unusable: true
+output_dir: outputs/search_r1
