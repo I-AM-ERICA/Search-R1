@@ -9,6 +9,8 @@ import re
 import sqlite3
 import tempfile
 import tarfile
+from collections import OrderedDict
+from time import perf_counter
 
 
 STOP_WORDS = frozenset("a an the and or of to in on at for from by with is are was were be been being "
@@ -131,7 +133,9 @@ def _insert(connection, rows):
 
 
 class SQLiteRetriever:
-    def __init__(self, path):
+    def __init__(self, path, cache_mib=256, mmap_mib=1024, result_cache_size=128):
+        if min(cache_mib, mmap_mib, result_cache_size) < 0:
+            raise ValueError("Search cache limits must be nonnegative")
         path = Path(path).resolve()
         if not path.is_file():
             raise FileNotFoundError(f"검색 인덱스가 없습니다: {path}. scripts/prepare_search_r1.py --stage index를 실행하세요.")
@@ -140,7 +144,17 @@ class SQLiteRetriever:
             self.metadata = json.loads(self.connection.execute("SELECT value FROM metadata").fetchone()[0])
             if not self.metadata.get("complete") or self.metadata.get("version") != 1:
                 raise ValueError("Incomplete or unsupported search index")
-            self.connection.execute("PRAGMA cache_size=-65536")
+            self.connection.execute(f"PRAGMA cache_size=-{int(cache_mib * 1024)}")
+            self.connection.execute(f"PRAGMA mmap_size={int(mmap_mib * 1024 * 1024)}")
+            # Explicit BM25 + LIMIT lets SQLite keep a bounded top-k sorter.
+            # Preserve a custom rank mapping if an external index has one.
+            rank = self.connection.execute("SELECT v FROM passages_config WHERE k='rank'").fetchone()
+            self._scorer = "bm25(passages)" if rank is None or rank[0] == "bm25()" else "rank"
+            self._cache = OrderedDict()
+            self._cache_limit = result_cache_size
+            self.search_seconds = 0.0
+            self.search_calls = 0
+            self.cache_hits = 0
         except Exception:
             self.close()
             raise
@@ -152,17 +166,41 @@ class SQLiteRetriever:
         return self.connection.execute("SELECT 1 FROM documents WHERE id=?", (document_id,)).fetchone() is not None
 
     def search(self, query, top_k=3):
+        started = perf_counter()
+        self.search_calls += 1
+        try:
+            return self._search(query, top_k)
+        finally:
+            self.search_seconds += perf_counter() - started
+
+    def _search(self, query, top_k):
         # Quote lexical terms; model output must never become SQL/FTS syntax.
         tokens = list(dict.fromkeys(re.findall(r"[^\W_]+", query.casefold())))[:64]
         terms = [term for term in tokens if term not in STOP_WORDS] or tokens
         if not terms or top_k < 1:
             return []
         expression = " OR ".join('"' + term + '"' for term in terms)
-        rows = self.connection.execute(
-            "SELECT d.id, d.contents, hits.rank FROM "
-            "(SELECT rowid, rank FROM passages WHERE passages MATCH ? ORDER BY rank LIMIT ?) hits "
-            "JOIN documents d ON d.rowid=hits.rowid ORDER BY hits.rank", (expression, top_k)).fetchall()
-        return [{"id": key, "contents": contents, "score": -score} for key, contents, score in rows]
+        key = (expression, top_k)
+        if key in self._cache:
+            self.cache_hits += 1
+            self._cache.move_to_end(key)
+            return [dict(hit) for hit in self._cache[key]]
+        ranked = self.connection.execute(
+            f"SELECT rowid, {self._scorer} AS score FROM passages "
+            "WHERE passages MATCH ? ORDER BY score LIMIT ?", (expression, top_k)).fetchall()
+        # Fetch document bodies only for the final top-k, preserving rank order.
+        hits = []
+        for rowid, score in ranked:
+            document = self.connection.execute(
+                "SELECT id, contents FROM documents WHERE rowid=?", (rowid,)).fetchone()
+            if document is None:
+                raise ValueError(f"FTS index references missing document {rowid}")
+            hits.append({"id": document[0], "contents": document[1], "score": -score})
+        if self._cache_limit:
+            self._cache[key] = tuple(dict(hit) for hit in hits)
+            if len(self._cache) > self._cache_limit:
+                self._cache.popitem(last=False)
+        return hits
 
     def close(self):
         self.connection.close()

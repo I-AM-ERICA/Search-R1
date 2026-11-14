@@ -38,7 +38,7 @@ format_reward: 0.0
 search_cost: 0.0
 eval_every: 500
 eval_max_samples: 200
-save_every: 500
+save_every: 10
 max_zero_signal_updates: 3
 warmup_max_examples: 128
 warmup_max_candidates: 2048

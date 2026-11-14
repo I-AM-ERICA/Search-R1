@@ -7,6 +7,7 @@ from pathlib import Path
 import random
 import tempfile
 import uuid
+from time import perf_counter
 
 import torch
 from transformers import set_seed
@@ -314,10 +315,24 @@ class PPOExperiment:
 
     def train(self):
         history = []
+        stop_file = self.output / "STOP_AFTER_STEP"
         for step in range(self.step + 1, self.config.total_updates + 1):
+            if stop_file.exists():
+                if not (self.output / f"checkpoint-{self.step:05d}").exists():
+                    self.save()
+                print(f"Stopped at saved update {self.step}: {stop_file}", flush=True)
+                break
+            started = perf_counter()
+            search_before = getattr(self.retriever, "search_seconds", 0.0)
+            hits_before = getattr(self.retriever, "cache_hits", 0)
             batch = self._collect_batch()
+            collected = perf_counter()
             metrics = self._update(batch)
+            updated = perf_counter()
             self.step = step
+            metrics.update(collect_seconds=collected - started, update_seconds=updated - collected,
+                           search_seconds=getattr(self.retriever, "search_seconds", 0.0) - search_before,
+                           search_cache_hits=getattr(self.retriever, "cache_hits", 0) - hits_before)
             metrics.update({key: sum(b["score"][key] for b in batch) / len(batch)
                             for key in batch[0]["score"]})
             metrics["reference_kl_sampled"] = sum(b["reference_kl"] for b in batch) / len(batch)
@@ -332,8 +347,17 @@ class PPOExperiment:
             metrics["step"] = step
             metrics["train_examples_seen"] = self.train_examples_seen
             metrics["train_passes"] = self.train_examples_seen / len(self.train_data)
-            if step % self.config.eval_every == 0:
+            stop_requested = stop_file.exists()
+            # Persist before potentially long validation; never save a failed
+            # zero-signal run as a successful periodic checkpoint.
+            checkpoint_due = step % self.config.save_every == 0 or step == self.config.total_updates
+            if (checkpoint_due or stop_requested) and self.zero_signal_updates < self.config.max_zero_signal_updates:
+                self.save()
+            if step % self.config.eval_every == 0 and not stop_requested:
+                evaluation_started = perf_counter()
                 metrics.update(self.evaluate())
+                metrics["evaluation_seconds"] = perf_counter() - evaluation_started
+            metrics["step_seconds"] = perf_counter() - started
             self._append("metrics.jsonl", metrics)
             # Log every rollout: the previous first-only trace hid rare valid/rewarding samples.
             for index, example in enumerate(batch):
@@ -350,6 +374,7 @@ class PPOExperiment:
                     f"학습 신호 없이 진행하는 것을 중단했습니다. {self.output / 'rollouts.jsonl'}에서 "
                     "생성문과 종료 사유를 확인하세요. 검색/답변 형식 학습 또는 보상·정답 매칭 점검이 필요합니다. "
                     "저장된 파일은 유지합니다. 형식 warmup은 새 실험에서 수행하세요.")
-            if step % self.config.save_every == 0 or step == self.config.total_updates:
-                self.save()
+            if stop_requested:
+                print(f"Stopped at saved update {self.step}: {stop_file}", flush=True)
+                break
         return history

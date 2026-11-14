@@ -1,0 +1,5 @@
+# Add to the existing naver environment; do not reinstall Torch/CUDA.
+grpcio==1.85.1
+grpcio-health-checking==1.85.1
+protobuf==7.36.2
+# Generated stubs are included. Regeneration only: grpcio-tools==1.85.1

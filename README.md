@@ -167,6 +167,87 @@ E5와 동일한 검색 결과/성능은 아닙니다. 근거: [공식 QA](https:
 
 ## Naver Cloud GPU 서버에서 실행
 
+### 2026-11-13: 실행 중 노트북 복구와 검색 성능 수정
+
+2026-11-14에 전달받은 서버 원본을 비교한 결과, `trainer.py`와 CLI는 기존 버전과 같고
+`sqlite_search.py`는 마지막 줄바꿈만 달랐습니다. 서버 원본의 정확한 SHA-256을 기준으로
+`outputs/delivery/search-r1-search-fix.tar.gz`를 준비했습니다. 이 패키지는 검색·학습·CLI·벤치마크
+4개 파일만 설치하며, 설치 전 원본 확인·백업과 설치 실패 시 복원을 수행합니다.
+이미 저장한 `checkpoint-00111`이나 노트북 파일은 수정하지 않습니다.
+실제 서버 검증은 아래처럼 질의별 실행 순서를 번갈아 두 번씩 측정합니다.
+
+```bash
+python scripts/benchmark_search.py --run-dir outputs/search_r1_20261113_134427_797919 \
+  --queries 5 --repeats 2 --output outputs/search-benchmark-20261114.json
+```
+
+보고서의 `complete`, `summary.all_identical`, `summary.search_improved`를 확인합니다.
+비교에는 결과 캐시를 사용하지 않으며 문서 순서·본문·점수를 모두 비교합니다. 서버의 OS 페이지
+캐시를 강제로 비우지는 않습니다. 측정된 질의에 대한 결과이므로 전체 검색 성능을 보장하지 않습니다.
+실제 서버에서 결과와 속도를 확인하기 전에는 수정된 코드로 장시간 학습을 재개하지 마세요.
+
+`SQLiteRetriever.search`에서 오래 머무르는 현상을 진단했습니다. 기본 BM25 검색은
+명시적인 점수 계산과 top-k 정렬을 사용하고, 최종 문서만 읽습니다. OR 질의, 토큰화,
+BM25 점수 정의는 유지합니다. 읽기 캐시 256 MiB, mmap 상한 1 GiB, 최대 128개 질의의
+LRU 캐시를 사용합니다. 실제 속도는 인덱스·SQLite 버전·디스크에 따라 달라집니다.
+검색을 GPU 연산과 겹쳐 실행하는 변경은 아니므로 GPU 유휴 시간이 모두 없어지지는 않습니다.
+
+이전 코드가 이미 실행 중인 커널에는 새 파일이 자동 반영되지 않습니다. 아래 복구 도구는
+Linux에서 **rollout 수집 중 SQLite 검색**임을 확인하고 프로세스를 잠깐 정지시킨 뒤
+같은 위치인지 다시 확인해 SIGINT를 보냅니다. 다른 학습 단계에서는 중단하지 않습니다.
+예외 시 재개 처리와 별도 10초 재개 watchdog이 있습니다. 기존 커널을 종료하거나
+수동 Interrupt 버튼을 누르기 전에 사용하세요. 로컬 테스트에서는 신호 순서를 모의 검증했으며,
+실제 GPU 서버에서의 저장 완료 여부는 아래 출력과 체크포인트 파일로 확인해야 합니다.
+
+서버 터미널 (`--pid`는 현재 GPU Python PID):
+
+```bash
+python scripts/pause_for_checkpoint.py --pid 202314
+```
+
+노트북의 학습 셀이 `KeyboardInterrupt`로 끝나면 **같은 커널의 새 셀**에서:
+
+```python
+%run -i scripts/recover_notebook.py
+```
+
+복구 코드는 실제 traceback·마지막 metrics·배치의 질문 수를 다시 검증합니다. 검증 실패 시
+저장하지 않습니다. 완료한 PPO update의 Actor/Critic/optimizer를 보존하고, 미완료 배치의
+질문은 다시 처리하도록 질문 순서와 사용량을 되돌립니다. 미완료 rollout에서 소비한 난수는
+되돌릴 수 없으므로 이후 생성이 중단 없는 실행과 비트 단위로 같지는 않습니다.
+`RECOVERY COMPLETE`와 `outputs/<실험명>/RECOVERED_CHECKPOINT`가 생긴 것을 확인한 뒤에만
+기존 커널을 종료하세요. 저장 주기는 복구 체크포인트의 설정에도 10 update로 기록됩니다.
+
+저장 후 서버 터미널에서 실제 로그의 질의로 검색 결과와 시간을 비교합니다. 이 검사는 GPU를 사용하지 않습니다.
+
+```bash
+conda activate naver
+python scripts/benchmark_search.py --run-dir outputs/search_r1_20261113_134427_797919 \
+  --output /tmp/search-r1-search-benchmark.json
+```
+
+`all_identical: true`인지, 실제 `speedup`이 개선되는지 확인한 후 기존 커널을 종료하고 tmux에서 재개합니다.
+결과가 다르거나 더 느리면 재개 전에 원인을 확인하세요. `--skip-resume-checks`는 별도 검색 검증이
+끝난 재개 작업에서만 사용하며, 긴 초기 평가와 중복 rollout 진단을 생략합니다.
+
+```bash
+tmux new -s search-r1
+conda activate naver
+cd ~/Search-R1
+python scripts/train.py \
+  --resume-from "$(cat outputs/search_r1_20261113_134427_797919/RECOVERED_CHECKPOINT)" \
+  --skip-resume-checks
+```
+
+수정된 학습의 `metrics.jsonl`에는 `collect_seconds`, `search_seconds` (collection의 일부),
+`update_seconds`, `step_seconds`, `search_cache_hits`가 기록됩니다. 새 실행을 안전하게 멈추려면
+**새 실행 출력 폴더**에 다음 파일을 만드세요. 현재 update를 끝내고 저장한 뒤 종료합니다.
+이 파일은 요청 증거로 남겨두므로 같은 객체에서 계속하려면 직접 삭제해야 합니다.
+
+```bash
+touch outputs/새_실험_폴더/STOP_AFTER_STEP
+```
+
 GPU는 로컬 노트북이 IP 주소로 직접 가져다 쓰는 장치가 아닙니다. **Jupyter의 Python 커널을 GPU 서버에서 실행하고 로컬 브라우저로 접속**합니다. 이미지의 서버를 사용할 수 있도록 아래 `GPU_HOST`, 계정, 키 경로를 본인 설정으로 바꾸세요. 서버 생성이나 과금 자원 변경은 이 코드가 수행하지 않습니다.
 
 로컬 Mac 터미널에서 프로젝트 전송:
@@ -215,7 +296,7 @@ ssh -i "$GPU_KEY" -N -L 8888:127.0.0.1:8888 "$GPU_USER@$GPU_HOST"
 3. QA 변환과 Wikipedia 인덱스 준비. 실제 train/val/test 개수와 검색 결과 확인.
 4. Actor/Critic 로드, 질문 길이 확인. 전체 학습 질문을 최소 한 번 사용하는 update 목표 계산.
 5. 초기 고정 validation subset 평가 → 선택적 형식 SFT 128 update → sampled rollout 진단 → PPO 전 평가.
-6. PPO 실행. 500 update마다 고정 validation 200문항 평가·저장. 마지막 update도 저장.
+6. PPO 실행. 10 update마다 저장, 500 update마다 고정 validation 200문항 평가. 평가 전에 체크포인트를 저장하며 마지막 update도 저장합니다.
 7. 동일 subset으로 전후 비교, 전체 validation 2,000문항 평가. test는 최종 모델을 고른 뒤 별도 실행.
 
 현재 변환본에서 1회 순회는 `ceil(167391 / 8) = 20924` update입니다. 마지막 배치에 다음 순회의 1문항이 포함됩니다.
@@ -291,6 +372,222 @@ python -m pytest -q
 전체 Wikipedia 다운로드/인덱스 성능과 HyperCLOVA CUDA 본 학습은 이 로컬 검증에 포함되지 않습니다.
 
 테스트는 인터넷·모델 다운로드·GPU 없이 작은 무작위 Llama 모델을 생성합니다. 실제 HyperCLOVA CUDA/4-bit 학습 검증과 구분됩니다. 실제 학습에서는 loss뿐 아니라 EM, valid-answer 비율, 검색 횟수, reference KL, clip fraction, rollout trace를 확인하세요. valid-answer 비율이 계속 0이면 실제 모델의 tag 생성부터 점검하고, 필요하면 별도의 검색 형식 SFT를 먼저 준비하세요.
+
+## SerpAPI 웹 검색 추론 서버와 am-erica 연결
+
+완료한 `checkpoint-00150`의 Actor adapter를 base 모델과 함께 GPU에 올립니다. 프론트에
+모델을 복사하지 않습니다. 요청 경로는 **프론트 → Spring 백엔드 → GPU의 PolicyAssistant
+gRPC → 모델의 검색 action → SerpAPI Google 검색 → 모델 답변 → 백엔드 SSE → 프론트**입니다.
+학습용 SQLite/Wikipedia 인덱스, Critic, optimizer, 학습 데이터는 이 추론 서버에서 읽지 않습니다.
+
+서빙·진단 스크립트는 검색 결과의 **링크를 열어 HTML 본문을 읽고** 모델에 전달합니다. 검색 요약이
+있어도 본문을 읽으며, 실패한 페이지를 검색 요약으로 대체하지 않습니다. 확인된 공식 호스트는
+`official_page_excerpt`, 그 밖의 공개 사이트는 `page_excerpt`로 구분합니다. PDF·첨부파일·JavaScript 렌더링은 지원하지 않고,
+공고의 신청 가능 여부를 자동 검증하지 않습니다. 모델에는 공식 공고를 우선하고 확인되지 않은
+조건·금액·기간을 단정하지 않도록 지시합니다. 반환하는 sources는 모델에 전달된 검색 결과이며,
+답변의 모든 문장이 출처와 일치함을 보장하는 인용 검증은 아닙니다. 한국어 정책 품질은 실제
+체크포인트로 별도 확인해야 합니다. 학습 150단계 완료 자체는 그 검증을 대신하지 않습니다.
+
+`serving/proto`와 `america/ai/v1`은 기존 am-erica-backend의 PolicyAssistant 규격과 일치합니다.
+`Ask`, `AskStream`, 표준 health check, `x-internal-key` 인증을 제공합니다. `AskStream`은
+검색과 답변 생성이 끝난 후 답변을 나눠 전송하며, 실시간 token streaming은 아닙니다.
+한 번에 GPU 요청 하나를 처리하고 다른 요청은 RESOURCE_EXHAUSTED로 반환합니다.
+요청 제한은 기본 85초, 검색은 최대 2회, 검색 결과는 기본 3개입니다. 같은 검색은 5분간
+메모리에 캐시합니다. API 실패나 불완전한 action, 근거 없는 답변은 성공으로 위장하지 않습니다.
+
+### 서버 설치와 검색 확인
+
+로컬에서 생성된 `outputs/delivery/search-r1-serpapi-serving.tar.gz`를 Mac 터미널에서 복사합니다.
+
+```bash
+scp /Users/parksung-cheol/Desktop/Search-R1/outputs/delivery/search-r1-serpapi-serving.tar.gz root@223.130.161.182:/tmp/
+```
+
+GPU 서버에서 실행합니다. installer는 기존 rollout 코드가 예상 버전과 일치하는지 먼저 검사하고
+코드를 백업합니다. 체크포인트와 학습 설정은 변경하지 않습니다. 버전 불일치가 나오면 강제로
+덮어쓰지 말고 해당 파일을 비교해야 합니다. 이미 학습이 끝난 상태에서 새 Python 프로세스로 실행하세요.
+
+```bash
+cd /root/Search-R1
+mkdir -p /tmp/search-r1-serpapi-serving
+tar -xzf /tmp/search-r1-serpapi-serving.tar.gz -C /tmp/search-r1-serpapi-serving
+/root/anaconda3/envs/naver/bin/python /tmp/search-r1-serpapi-serving/install.py /root/Search-R1
+/root/anaconda3/envs/naver/bin/python -m pip install -r requirements-serving.txt
+tmux new -s policy-api
+```
+
+새 tmux 창 **안에서** 아래를 실행합니다(서버의 bash 기준). 키는 화면과 명령 기록에 남지 않게
+입력하며, 채팅·Git·프론트 환경변수에 넣지 않습니다. `AI_INTERNAL_KEY`는 SerpAPI 키와 별개로
+백엔드와 추론 서버가 공유하는 임의의 긴 ASCII 비밀 문자열입니다.
+
+```bash
+cd /root/Search-R1
+read -rsp 'SerpAPI key: ' SERPAPI_API_KEY; export SERPAPI_API_KEY; printf '\n'
+read -rsp 'Internal key: ' AI_INTERNAL_KEY; export AI_INTERNAL_KEY; printf '\n'
+/root/anaconda3/envs/naver/bin/python scripts/check_web_search.py
+```
+
+검색 확인은 실제 API 사용량을 소비합니다. `count`와 공식 출처 URL이 나오면 모델 서버를 실행합니다.
+기존 학습 환경의 Torch/CUDA를 재설치하지 않습니다. base 모델 캐시 또는 모델 다운로드 권한이 필요합니다.
+
+`count`는 빈 설명과 알려진 “이 페이지에 관한 정보가 없습니다” 안내문, Google `/goto`·`/url`
+중계 링크를 제외한 결과 수입니다. 이것만으로 정책 근거의 정확성이 검증되지는 않으므로 제목·요약·URL도
+확인하세요. `diagnostics`에는 전체 결과 수, 제외 사유, 응답 검색어가 요청 검색어와 일치하는지가
+나옵니다. 0개라면 추론 서버 실행 전에 다음처럼 다른 검색어로 확인합니다. API 키나 원본 응답 전체는
+공유하지 않아도 됩니다.
+
+```bash
+/root/anaconda3/envs/naver/bin/python scripts/check_web_search.py --query '소상공인 지원사업 모집공고 site:mss.go.kr'
+```
+
+검색 확인 명령은 기본 socket timeout 45초를 사용하며 `--timeout 60`처럼 바꿀 수 있습니다.
+이는 진단 명령에만 적용되고 추론 서버의 검색 timeout 기본값은 15초입니다. 실패 시 `TIMEOUT`,
+`DNS_ERROR`, `TLS_CERTIFICATE_ERROR`, `CONNECTION_ERROR`, `HTTP_PROTOCOL_ERROR`,
+`HTTP_<상태코드>`, `INVALID_JSON` 등과 경과 시간을 표시합니다. URL·키·원본 오류 응답은
+출력하지 않습니다. 통신/API 오류는 자동 재시도하지 않으며, 실제 오류에 따라 원인을 확인한 뒤 재실행하세요.
+
+gRPC 검색 실패에도 동일한 오류 코드가 전달됩니다(예: `UNAVAILABLE: Web search unavailable [TIMEOUT]`).
+`PROVIDER_ERROR`와 `search_id`가 나오면 SerpAPI 대시보드에서 해당 검색 응답을 확인하세요.
+서버 로그에도 코드와 경과 시간만 남기며 API 키·원본 오류 문구·검색어는 출력하지 않습니다.
+SerpAPI의 `status=Success`와 명시적인 결과 없음 메시지는 빈 관측으로 전달하여 모델이 제한 내에서
+검색어를 바꿀 수 있게 합니다. 계정/통신 오류를 빈 결과로 바꾸지는 않습니다.
+[SerpAPI 오류 응답 규격](https://serpapi.com/api-status-and-error-codes).
+
+Google 응답에 문제가 있으면 같은 SerpAPI 계정으로 네이버 웹 검색을 선택해 별도로 확인할 수
+있습니다. 검색엔진을 자동 전환하지 않습니다. 아래 진단 명령은 실제 검색 1회를 요청합니다.
+
+```bash
+/root/anaconda3/envs/naver/bin/python scripts/check_web_search.py \
+  --engine naver --timeout 45 --query '소상공인시장진흥공단 정책자금 지원'
+```
+
+네이버는 실제 서버 응답이 확인된 `engine=naver`, `query`, `where=nexearch`(통합검색)로 요청하고
+`web_results`를 사용합니다. 광고·이미지·지도·쇼핑·AI 요약은 섞지 않습니다. `diagnostics`의 엔진, `result_count`,
+`elapsed_seconds`와 실제 출처 내용을 확인하세요. 네이버도 서비스 상태와 검색어에 따라 실패하거나
+부적절한 결과를 줄 수 있습니다. [SerpAPI 네이버 공식 문서](https://serpapi.com/naver-search-api).
+
+본문 읽기는 공개 HTTPS 사이트에 적용하고, 확인된 공식 호스트(`www.semas.or.kr`,
+`semas.or.kr`, `ols.semas.or.kr`, `www.mss.go.kr`, `www.bizinfo.go.kr`)를 우선합니다.
+검색당 최대 3페이지, 페이지당 최대 8초·1MiB, 본문 최대 5,000자로 제한합니다.
+공개 IP를 확인해 고정하고 HTTPS 인증서를 검증하며 리다이렉트는 따라가지 않습니다.
+`curl` 명령이 필요하지만 Python 추가 패키지는 필요하지 않습니다. 메뉴·스크립트 등을 제거하고
+본문 영역이 확인될 때만 사용합니다. 접속/본문 추출 실패는 `page_fetch_failures`에 표시하고
+빈 본문을 근거로 만들지 않습니다. 검색 요약이 이미 있는 결과도 원문을 가져옵니다.
+모델의 관측 토큰 제한으로 본문은 더 잘릴 수 있으며, 원문 전체나 첨부파일을 읽은 것으로 취급하지 않습니다.
+여러 페이지에 관측 예산을 나눠 주어 첫 번째 긴 문서가 다른 출처를 모두 밀어내지 않게 합니다.
+라이브러리 `SerpAPIRetriever`의 기본값은 기존 진단 호환용 요약 모드이며, 서빙·진단 스크립트는
+`require_page_evidence=True`를 명시합니다.
+
+프론트는 마지막 완료 답변의 출처 URL 최대 2개를 이전 대화에 `이전 답변 출처 URL:`로 전달합니다.
+요약·내용 설명 후속 질문은 이 URL의 본문을 다시 읽거나 5분 이내 페이지 캐시를 사용합니다.
+사용자가 보낸 이전 답변 자체는 근거로 삼지 않으며, 자료를 읽지 못하면 요약을 거절합니다.
+본문을 받은 후에도 모델이 링크 안내만 출력하면 같은 본문으로 한 번만 다시 요약을 요청합니다.
+체크포인트나 학습 설정은 바꾸지 않으며, 실제 GPU의 다양한 질문에 대한 품질 확인은 별도입니다.
+
+공식 HTML 본문은 제목/소제목의 단락 경계를 보존합니다. 모델이 긴 표를 복사·반복하는 문제를
+줄이기 위해, 질문의 단어·구문과 맞는 짧은 단락이 확인되면 그 단락을 **원문 그대로** 골라 관측에
+넣습니다. 바로 이어지는 제외·주의 단락도 유지합니다. 숫자·자격 조건·답변을 새로 만들어 붙이지
+않으며, 검색 요약에는 이 처리를 적용하지 않습니다. 분명한 단락을 고르지 못하면 기존 발췌를
+유지합니다. 다른 단락의 조건이 생략될 수 있으므로 이를 전체 공고 검토로 간주해서는 안 됩니다.
+진단의 `evidence_focus`에 원래 길이·선택한 길이·소제목이 표시됩니다. 생성 지시는 질문한 항목에
+2~5개의 짧은 문장이나 항목으로 답하고 종료하도록 했으나, 준수 여부와 사실 정확성은 실제 모델로 검증해야 합니다.
+
+추론에서는 모델이 검색어에 복사한 **해당 요청의 정확한 기준일·지역·업종 접두부**와 문장 끝의
+“공식 자료로 확인해줘” 같은 요청 표현을 정리합니다. 접두부 필드 사이와 끝의 공백·`/`·`|`·`;`·`,`
+구분자를 처리하되, 검색어 내부의 URL이나 날짜 구분자는 보존합니다. 질문 본문에 직접 포함된 지역·연도·업종·
+제외 조건은 일괄 삭제하지 않습니다. 정리한 검색어의 결과가 비었을 때만 `공통 지원 자격`을
+`지원`으로 넓히는 제한된 보완 검색을 한 번 시도합니다. 기관명이나 답변을 하드코딩하지 않으며
+전혀 다른 정책으로 바꾸지 않습니다. 한 사용자 요청의 검색기 호출은 합계 최대 2회입니다.
+동일 검색어는 요청 내 결과를 재사용하고, API/네트워크 오류에는 이 보완 검색을 적용하지 않습니다.
+`searches`는 모델 search action 수, `search_requests`는 보완 검색을 포함한 검색기 호출 수입니다.
+이는 추론 환경의 보정이며 PPO 체크포인트 자체의 검색 능력이 향상됐다는 의미는 아닙니다.
+
+최신 사용자 질문에서 “공식 자료/문서/출처/공고/사이트/홈페이지”를 요청하면 지원 중인 공식
+호스트 목록에 포함된 HTTPS URL만 모델의 관측과 반환 sources에 넣습니다. 제목에 기관 이름이
+있다는 이유로 공식 출처로 인정하지 않습니다. 후보는 최대 5개를 검사하고 요청한 top_k 이내로
+반환합니다. 공식 후보가 없으면 빈 결과와 동일하게 제한된 보완 검색을 적용하며, 끝내 없으면
+근거 없는 답변을 반환하지 않습니다. 지원 목록 밖의 실제 공식 기관도 제외될 수 있으므로 이는
+전국 모든 기관을 포괄하는 공식 출처 판별기가 아닙니다. 도메인이 확인돼도 공고의 최신성이나
+질문과의 관련성, 답변 내용 일치 여부까지 검증된 것은 아닙니다.
+
+네이버 검색 확인이 통과하면 아래 서버 실행 명령에 `--search-engine naver`를 추가합니다.
+필요하면 `--search-timeout 30`으로 검색 socket timeout을 조정할 수 있으나, 전체 요청 85초
+제한에는 모델 생성 시간도 포함됩니다. 모델의 검색 action/관측/답변 흐름과 체크포인트는 그대로입니다.
+
+```bash
+/root/anaconda3/envs/naver/bin/python -u scripts/serve_policy.py \
+  --checkpoint outputs/search_r1_until_00150_20261114_125545_672828/checkpoint-00150
+```
+
+`POLICY SERVER READY`가 나오면 `Ctrl-b` 후 `d`로 tmux에서 나옵니다. 다른 서버 터미널에서
+동일한 internal key를 입력하고 실제 모델 요청을 확인합니다. 이 요청도 SerpAPI 사용량을 소비할 수 있습니다.
+
+```bash
+cd /root/Search-R1
+read -rsp 'Internal key: ' AI_INTERNAL_KEY; export AI_INTERNAL_KEY; printf '\n'
+/root/anaconda3/envs/naver/bin/python scripts/ask_policy.py \
+  --question '서울 음식점 소상공인이 확인할 수 있는 지원사업의 공식 공고를 찾아줘. 신청 기간이 불확실하면 알려줘.'
+```
+
+답변과 sources를 읽고 실제 공고의 지역·대상·기간과 비교하세요. 실패하면 오류 코드와 메시지를
+먼저 확인합니다. health의 SERVING은 모델 로딩과 서버 시작을 뜻하며 API 잔여량이나 답변 품질까지
+보증하지 않습니다. 로컬 자동 테스트는 가짜 검색 응답/작은 모델과 실제 localhost gRPC를 사용하며,
+GPU 체크포인트와 유료 API의 통합 검증은 위 단계로 별도 수행합니다.
+
+`No retrieved evidence` 오류는 검색을 생략한 답변, 검색 결과 없음, 관측에서 출처 식별자가
+잘리는 경우 등을 구분해야 합니다. 서버를 `Ctrl-C`로 종료한 후 같은 GPU 셸에서 아래 진단을
+실행하면 한 요청의 검색어·검색 결과 개수·관측에 남은 출처·종료 사유를 확인할 수 있습니다.
+출력에는 모델이 생성한 검색어가 포함됩니다. 전체 답변·원문·API 키는 출력하지 않습니다.
+실제 모델과 검색 API를 사용하며 재학습하거나 체크포인트를 변경하지 않습니다.
+`source_selection`은 검색엔진 후보와 공식 출처 필터를 통과해 모델에 전달한 결과를 구분합니다.
+`--show-answer`를 추가하면 최종 답변과 채택한 출처 URL도 출력해 내용까지 검토할 수 있습니다.
+진단의 `status=success`는 검색-관측-답변 흐름이 끝났다는 뜻이며 정책 답변의 정답 판정이 아닙니다.
+
+공식 근거가 전달됐는데 `generation_limit`으로 끝나면, 생성 한도 부족과 반복/형식 오류를
+구분해야 합니다. 진단과 서버 모두 `--max-new-tokens 512`처럼 추론 한도만 바꿀 수 있습니다.
+옵션을 생략하면 체크포인트 설정(현재 192)을 유지하며, 저장된 설정이나 학습 가중치를 수정하지
+않습니다. `--show-invalid-output`은 진단에서만 실패 출력 앞뒤 각 240자와 답변 태그 여부를
+표시합니다. 미완성 출력을 정상 답변으로 반환하거나 닫는 태그를 임의로 붙이지 않습니다.
+한도를 늘려도 전체 context/요청 시간 제한은 유지되며, 속도와 메모리 사용량이 늘 수 있습니다.
+
+```bash
+/root/anaconda3/envs/naver/bin/python scripts/diagnose_policy.py \
+  --checkpoint outputs/search_r1_until_00150_20261114_125545_672828/checkpoint-00150 \
+  --max-new-tokens 512 --show-answer --show-invalid-output
+```
+
+```bash
+/root/anaconda3/envs/naver/bin/python scripts/diagnose_policy.py \
+  --checkpoint outputs/search_r1_until_00150_20261114_125545_672828/checkpoint-00150
+```
+
+### 로컬 Spring 백엔드 연결
+
+서버는 `127.0.0.1:50051`에만 바인딩합니다. Mac의 별도 터미널에서 SSH 터널을 유지합니다.
+
+```bash
+ssh -N -L 50061:127.0.0.1:50051 root@223.130.161.182
+```
+
+백엔드 실행 환경에 다음 값을 설정하고 재시작합니다. `AI_INTERNAL_KEY`는 GPU 서버와 같은
+값을 IDE의 비공개 실행 환경 또는 로컬 환경변수로 설정합니다. SerpAPI 키는 GPU에만 필요합니다.
+
+```text
+AI_MOCK_ENABLED=false
+AI_POLICY_HOST=127.0.0.1
+AI_POLICY_PORT=50061
+AI_GRPC_DEADLINE=90s
+AI_GRPC_TLS=false
+```
+
+기존 프론트의 policy SSE 요청 경로를 그대로 사용할 수 있습니다. 프론트 timeout 120초 안에
+서버 85초/백엔드 90초 제한이 들어갑니다. **현재 백엔드의 mock 스위치는 전체 AI 서비스 공통**이므로
+false로 바꾸면 홍보·고객·경영 mock도 꺼집니다. 해당 서버가 없다면 그 기능과 통합 health가
+실패할 수 있습니다. 이 변경에는 백엔드/프론트 코드를 수정하거나 다른 AI 서비스를 배포하는 작업은
+포함하지 않았습니다. SSH 터널 방식은 로컬 연동용입니다.
+
+SerpAPI 필드와 설정: [공식 Search API](https://serpapi.com/search-api),
+[Organic results](https://serpapi.com/organic-results).
 
 ## 원본 Search-R1과의 관계
 
