@@ -14,7 +14,8 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 
-def probe(engine, question, request_timeout=85, show_answer=False, show_invalid_output=False):
+def probe(engine, question, request_timeout=85, show_answer=False, show_invalid_output=False,
+          region="서울", category="음식점"):
     from policy_r1 import inference
     from policy_r1.web_search import SearchUnavailable
     from policy_r1.rollout import RolloutCancelled
@@ -83,7 +84,7 @@ def probe(engine, question, request_timeout=85, show_answer=False, show_invalid_
     engine.retriever = TracedSearch()
     try:
         with patch.object(inference, "collect_rollout", traced_rollout):
-            result = engine.answer(question, region="서울", category="음식점",
+            result = engine.answer(question, region=region, category=category,
                                    deadline=time.monotonic() + request_timeout)
         report.update(status="success", source_count=len(result["sources"]),
                       search_requests=result.get("search_requests", len(report["search_calls"])))
@@ -109,6 +110,8 @@ def main():
     parser.add_argument("--show-invalid-output", action="store_true", help="Print bounded head/tail of failed model output")
     parser.add_argument("--max-new-tokens", type=int, help="Serving-only limit; default: checkpoint setting")
     args = parser.parse_args()
+    from policy_r1.runtime_env import load_runtime_env
+    load_runtime_env()
     from policy_r1.inference import PolicyInference, load_actor, with_generation_limit
     from policy_r1.web_search import SerpAPIRetriever
     search = SerpAPIRetriever(engine=args.search_engine, timeout=args.search_timeout, require_page_evidence=True)

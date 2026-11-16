@@ -34,7 +34,7 @@ class Config:
     max_prompt_tokens: int = 512
     max_new_tokens: int = 192
     max_observation_tokens: int = 192
-    observation_strategy: str = "concat"  # historical checkpoints keep their original renderer
+    observation_strategy: str = "concat"
     max_searches: int = 2
     rollout_batch_size: int = 4
     total_updates: int = 10
@@ -56,7 +56,7 @@ class Config:
 
     def validate(self):
         if self.observation_strategy not in {"concat", "balanced_v1", "focused_v1"}:
-            raise ValueError("observation_strategy must be concat, balanced_v1 or focused_v1")
+            raise ValueError("Invalid observation_strategy")
         for key in ("lora_rank", "lora_alpha", "top_k", "max_seq_length",
                     "max_prompt_tokens", "max_new_tokens", "max_observation_tokens",
                     "rollout_batch_size", "total_updates", "ppo_epochs", "eval_every", "save_every",

@@ -94,7 +94,7 @@ def load_actor(checkpoint):
 
 class ObservedSearch:
     def __init__(self, retriever, should_stop, deadline, context_prefix="", max_requests=2, official_only=False,
-                 tokenizer=None, observation_budget=768, fallback_query="", observation_strategy="concat"):
+                 tokenizer=None, observation_budget=768, fallback_query=""):
         self.retriever, self.should_stop, self.deadline = retriever, should_stop, deadline
         self.hits = {}
         self.context_prefix, self.max_requests = context_prefix, max_requests
@@ -105,7 +105,6 @@ class ObservedSearch:
         self.focus_log = []
         self.tokenizer, self.observation_budget = tokenizer, observation_budget
         self.fallback_query = fallback_query
-        self.observation_strategy = observation_strategy
 
     def _request(self, query, top_k):
         if self.should_stop():
@@ -142,10 +141,6 @@ class ObservedSearch:
             broader = broader_search_query(query)
             if broader:
                 hits = self._request(broader, top_k)
-        if self.observation_strategy == "focused_v1":
-            # The shared rollout renderer must receive the complete retrieved
-            # body, just as the SFT compiler does. Do not pre-truncate it here.
-            return hits
         focused = [focus_official_excerpt(hit, query) for hit in hits]
         for hit in focused:
             if hit.get("evidence_focus"):
@@ -192,10 +187,9 @@ class PolicyInference:
                 config.max_seq_length - config.max_prompt_tokens - config.max_new_tokens - 128))
         context_prefix = "\n".join(query.splitlines()[:3])
         observed = ObservedSearch(self.retriever, should_stop, deadline, context_prefix, config.max_searches,
-                                  official_only=requests_official_sources(question),
+                                  official_only=True,
                                   tokenizer=self.tokenizer if page_mode else None,
                                   observation_budget=config.max_observation_tokens,
-                                  observation_strategy=config.observation_strategy,
                                   fallback_query=fallback_search_query(question))
         initial_hits = None
         previous_urls = previous_summary_urls(question) if page_mode else []
@@ -205,7 +199,7 @@ class PolicyInference:
             pages = self.retriever.read_pages(previous_urls, timeout=max(0, min(24, deadline - time.monotonic())))
             if observed.official_only:
                 pages = [hit for hit in pages if official_url(hit["url"])]
-            initial_hits = pages if config.observation_strategy == "focused_v1" else page_observations(pages, self.tokenizer, config.max_observation_tokens)
+            initial_hits = page_observations(pages, self.tokenizer, config.max_observation_tokens)
             if not initial_hits:
                 raise InferenceFailure("Unable to read previous source pages; no page evidence to summarize")
             observed.hits.update((hit["id"], hit) for hit in initial_hits)

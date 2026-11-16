@@ -1,5 +1,6 @@
 # 역할: Actor 생성 → 문서 검색 → 추가 생성 루프와 PPO용 action-token mask를 만듭니다.
 from dataclasses import dataclass
+import html
 
 import torch
 from transformers import GenerationConfig, StoppingCriteria, StoppingCriteriaList

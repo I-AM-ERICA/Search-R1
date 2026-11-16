@@ -52,7 +52,7 @@ def _build_example(tokenizer, retriever, row, config):
     # Match the online environment's observation budget, including room for the next action.
     budget = min(config.max_observation_tokens,
                  config.max_seq_length - len(ids) - config.max_new_tokens)
-    obs = observation_ids(tokenizer, hits, budget, config.observation_strategy, question=row['question'], query=query)
+    obs = observation_ids(tokenizer, hits, budget)
     if obs is None:
         raise ValueError(f"{row['id']}: 검색 결과를 넣을 context 공간이 없습니다.")
     observation = tokenizer.decode(obs, skip_special_tokens=True)

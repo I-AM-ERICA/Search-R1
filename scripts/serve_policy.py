@@ -13,10 +13,14 @@ def main():
     parser.add_argument("--checkpoint", required=True)
     parser.add_argument("--port", type=int, default=50051)
     parser.add_argument("--request-timeout", type=float, default=85)
-    parser.add_argument("--search-engine", choices=("google", "naver"), default="google")
+    parser.add_argument("--search-engine", choices=("google", "naver"), default="naver")
     parser.add_argument("--search-timeout", type=float, default=15)
     parser.add_argument("--max-new-tokens", type=int, help="Serving-only generation limit; default: checkpoint setting")
+    parser.add_argument("--pipeline", choices=("mvp", "agent"), default="mvp")
+    parser.add_argument("--bind", default="127.0.0.1", help="Use a private interface or SSH tunnel for Spring")
     args = parser.parse_args()
+    from policy_r1.runtime_env import load_runtime_env
+    load_runtime_env()
     if not 1 <= args.port <= 65535 or args.request_timeout <= 0:
         parser.error("Invalid port/request timeout")
     internal_key = os.environ.get("AI_INTERNAL_KEY", "")
@@ -30,10 +34,14 @@ def main():
     print("Loading Actor checkpoint:", Path(args.checkpoint).resolve(), flush=True)
     tokenizer, actor, config = load_actor(args.checkpoint)
     config = with_generation_limit(config, args.max_new_tokens)
-    engine = PolicyInference(tokenizer, actor, config, retriever)
-    server, _ = build_server(engine, internal_key, f"127.0.0.1:{args.port}", args.request_timeout)
+    if args.pipeline == "mvp":
+        from policy_r1.mvp import MVPPolicyInference
+        engine = MVPPolicyInference(tokenizer, actor, config, retriever)
+    else:
+        engine = PolicyInference(tokenizer, actor, config, retriever)
+    server, _ = build_server(engine, internal_key, f"{args.bind}:{args.port}", args.request_timeout)
     server.start()
-    print(f"POLICY SERVER READY: 127.0.0.1:{args.port}; engine={args.search_engine}; evidence=read HTML pages; max_searches<=2; max_new_tokens={config.max_new_tokens}", flush=True)
+    print(f"POLICY SERVER READY: {args.bind}:{args.port}; pipeline={args.pipeline}; engine={args.search_engine}; evidence=read HTML pages; max_searches<=2; max_new_tokens={config.max_new_tokens}", flush=True)
     try:
         server.wait_for_termination()
     except KeyboardInterrupt:

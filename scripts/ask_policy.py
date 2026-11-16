@@ -17,6 +17,8 @@ def main():
     parser.add_argument("--region", default="서울")
     parser.add_argument("--category", default="음식점")
     args = parser.parse_args()
+    from policy_r1.runtime_env import load_runtime_env
+    load_runtime_env()
     key = os.environ.get("AI_INTERNAL_KEY", "")
     if not key:
         parser.error("Set AI_INTERNAL_KEY; it must match the inference server")
