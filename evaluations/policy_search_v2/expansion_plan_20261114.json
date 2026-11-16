@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "purpose": "Second collection pilot: expand real Korean search demonstrations; pending semantic review, no training.",
+  "split_axis": "policy family; retain historical family ownership; discard cross-family leakage",
+  "review_requirements": [
+    "Queries are proposed teacher actions, not learned strategy.",
+    "Select second search only if first observation lacks evidence.",
+    "Never infer current availability from generic pages or expired notices.",
+    "Keep validation families out of training and reward calibration.",
+    "Reject contaminated candidates including historical evaluation documents.",
+    "Review all factual claims against model-visible official HTML. Attachments are not read."
+  ],
+  "cases": [
+    {
+      "id": "expand_smart_01",
+      "split": "train",
+      "group_id": "smart_shop",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "스마트상점의 2026년 모집공고에서 렌탈형 지원 기간과 신청 자격을 찾아줘. 일반 소개와 모집공고를 구분해줘.",
+      "candidate_queries": [
+        "2026 스마트상점 렌탈형 모집 신청 자격",
+        "2026 스마트상점 렌탈형 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "expand_smart_02",
+      "split": "train",
+      "group_id": "smart_shop",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "스마트상점 기술 도입을 신청하려는 카페입니다. 2026년 모집의 접수 기간과 신청 경로를 공식 공고로 확인해줘.",
+      "candidate_queries": [
+        "2026 스마트상점 카페 신청 기간",
+        "2026 스마트상점 기술보급 모집 site:semas.or.kr"
+      ]
+    },
+    {
+      "id": "expand_insurance_01",
+      "split": "train",
+      "group_id": "employment_insurance",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "2026년 자영업자 고용보험료 지원을 지금 신청할 수 있나요? 기존 가입자와 신규 가입자의 접수마감 안내를 구분해줘.",
+      "candidate_queries": [
+        "2026 소상공인 고용보험료 접수마감 기존 신규 가입자",
+        "고용보험료 지원 접수마감 site:semas.or.kr"
+      ]
+    },
+    {
+      "id": "expand_insurance_02",
+      "split": "train",
+      "group_id": "employment_insurance",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "고용보험료 지원 신청 전에 이미 낸 보험료도 소급해서 지원되나요? 공식 본문의 적용 기준을 찾아줘.",
+      "candidate_queries": [
+        "자영업자 고용보험료 지원 신청 전 소급",
+        "고용보험료 소급 지원 site:semas.or.kr"
+      ]
+    },
+    {
+      "id": "expand_consult_01",
+      "split": "train",
+      "group_id": "business_consulting",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "2026년 소상공인 경영 컨설팅에서 지원하는 분야와 자부담 기준을 찾아줘. 과거 공고라면 연도를 밝혀줘.",
+      "candidate_queries": [
+        "2026 소상공인 경영 컨설팅 자부담",
+        "2026 소상공인 역량강화 컨설팅 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "expand_consult_02",
+      "split": "train",
+      "group_id": "business_consulting",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "식당 운영 개선을 위한 소상공인 컨설팅은 어디서 신청하나요? 현재 신청 대상과 접수 경로를 공식 자료에서 찾아줘.",
+      "candidate_queries": [
+        "소상공인 컨설팅 신청 음식점 경영 개선",
+        "2026 소상공인 컨설팅 모집 신청 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "expand_online_01",
+      "split": "train",
+      "group_id": "online_sales",
+      "agency": "중소벤처기업부",
+      "as_of": "2026-11-14",
+      "question": "해외 온라인 플랫폼 지원의 입점지원과 물류지원은 지원 내용이 어떻게 다른가요? 2026년 공고로 비교해줘.",
+      "candidate_queries": [
+        "2026 소상공인 해외 온라인 플랫폼 입점 물류",
+        "2026 해외 온라인 플랫폼 판로지원 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "expand_online_02",
+      "split": "train",
+      "group_id": "online_sales",
+      "agency": "중소벤처기업부",
+      "as_of": "2026-11-14",
+      "question": "온라인으로 예약을 받는 카페도 콘텐츠 제작 지원 대상에 포함되나요? 2026년 공고의 대상과 기간을 확인해줘.",
+      "candidate_queries": [
+        "2026 콘텐츠 제작 지원 소상공인 서비스 예약",
+        "2026 소상공인 콘텐츠 제작 지원사업 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "expand_brand_01",
+      "split": "train",
+      "group_id": "local_brand",
+      "agency": "부산광역시",
+      "as_of": "2026-11-14",
+      "question": "부산 청년 로컬크리에이터 육성 사업과 로컬크리에이터 프로젝트 사업의 지원 내용을 구분해줘. 2026년 공고를 기준으로 해줘.",
+      "candidate_queries": [
+        "2026 부산 청년 로컬크리에이터 육성 프로젝트 차이",
+        "2026 부산 로컬크리에이터 프로젝트 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "expand_brand_02",
+      "split": "train",
+      "group_id": "local_brand",
+      "agency": "인천광역시",
+      "as_of": "2026-11-14",
+      "question": "강화군 청년 로컬크리에이터 지원에 다른 지역 거주자가 참여하려면 어떤 지역 등록 조건이 있나요? 2026년 공식 공고에서 확인해줘.",
+      "candidate_queries": [
+        "2026 강화군 로컬크리에이터 타 지역 거주 사업자등록",
+        "2026 강화군 청년 로컬크리에이터 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "expand_startup_01",
+      "split": "train",
+      "group_id": "new_business_school",
+      "agency": "중소벤처기업부",
+      "as_of": "2026-11-14",
+      "question": "2026년 신사업창업사관학교는 예비창업자만 신청할 수 있나요? 사업자등록 관련 기준과 모집기간을 확인해줘.",
+      "candidate_queries": [
+        "2026 신사업창업사관학교 사업자등록 예비창업자",
+        "2026 신사업창업사관학교 모집 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "expand_startup_02",
+      "split": "train",
+      "group_id": "new_business_school",
+      "agency": "중소벤처기업부",
+      "as_of": "2026-11-14",
+      "question": "신사업창업사관학교의 2026년 교육 지원과 사업화 지원 내용을 구분해서 알려줘. 확정되지 않은 지원금은 단정하지 말아줘.",
+      "candidate_queries": [
+        "2026 신사업창업사관학교 교육 사업화 지원",
+        "2026 신사업창업사관학교 지원 내용 site:mss.go.kr"
+      ]
+    },
+    {
+      "id": "expand_closure_01",
+      "split": "val",
+      "group_id": "hope_return",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "2026년 희망리턴패키지 원스톱폐업지원에서 점포철거비 외에 받을 수 있는 지원을 찾아줘.",
+      "candidate_queries": [
+        "2026 희망리턴패키지 원스톱폐업지원 지원 내용",
+        "2026 원스톱폐업지원 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "expand_closure_02",
+      "split": "val",
+      "group_id": "hope_return",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "이미 폐업한 가게도 2026년 희망리턴패키지 재취업 지원에 신청할 수 있는지 대상과 조건을 찾아줘.",
+      "candidate_queries": [
+        "2026 희망리턴패키지 재취업 지원 기폐업",
+        "2026 희망리턴패키지 특화취업지원 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "expand_closure_03",
+      "split": "val",
+      "group_id": "hope_return",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "폐업 예정 가게가 희망리턴패키지 법률자문과 채무조정을 이용하려고 합니다. 두 지원의 범위와 대상을 비교해줘.",
+      "candidate_queries": [
+        "2026 희망리턴패키지 법률자문 채무조정",
+        "원스톱폐업지원 법률자문 채무조정 site:semas.or.kr"
+      ]
+    },
+    {
+      "id": "expand_market_01",
+      "split": "val",
+      "group_id": "traditional_market",
+      "agency": "중소벤처기업부",
+      "as_of": "2026-11-14",
+      "question": "전통시장 디지털 지원에 개별 점포가 직접 신청하는지 시장 단위로 신청하는지 2026년 공식 모집자료로 확인해줘.",
+      "candidate_queries": [
+        "2026 전통시장 디지털 지원 신청 주체",
+        "2026 전통시장 디지털 모집 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "expand_market_02",
+      "split": "val",
+      "group_id": "traditional_market",
+      "agency": "중소벤처기업부",
+      "as_of": "2026-11-14",
+      "question": "전통시장 디지털 지원 공고와 디지털 전통시장 아이디어 공모전이 같은 사업인가요? 지원 대상과 목적을 구분해줘.",
+      "candidate_queries": [
+        "2026 디지털 전통시장 아이디어 공모전 대상",
+        "2026 디지털 전통시장 지원사업 site:mss.go.kr"
+      ]
+    },
+    {
+      "id": "expand_market_03",
+      "split": "val",
+      "group_id": "traditional_market",
+      "agency": "중소벤처기업부",
+      "as_of": "2026-11-14",
+      "question": "2027년도 전통시장 활성화 지원 공고가 이미 나왔는지 찾아줘. 공고 연도와 사업 연도, 신청기간을 구분해서 설명해줘.",
+      "candidate_queries": [
+        "2027 전통시장 활성화 지원 모집 공고",
+        "2027 전통시장 상점가 활성화 지원사업 site:bizinfo.go.kr"
+      ]
+    }
+  ]
+}

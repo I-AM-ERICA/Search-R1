@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "purpose": "18-question collection pilot; draft teacher candidates, no invented answers/evidence. Not sufficient for training.",
+  "split_axis": "policy family (agency/date transfer requires separate future holdouts)",
+  "review_requirements": [
+    "Select second query only when actual first observation lacks necessary evidence.",
+    "Separate ordinary success, recovery, regional/date/number constraints, justified insufficient-evidence answers.",
+    "Confirm official body, quoted claims, required coverage and exact visible tokens before approval.",
+    "Keep test answers out of model training and reward tuning.",
+    "Collector planned queries are teacher proposals, not a model search strategy or natural recovery measurement."
+  ],
+  "cases": [
+    {
+      "id": "smart_01",
+      "split": "train",
+      "group_id": "smart_shop",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "스마트상점 기술을 도입하려는 제과점입니다. 지원하는 비용과 사업자가 부담할 비용을 공식 공고에서 구분해줘.",
+      "candidate_queries": [
+        "스마트상점 기술보급 지원 자부담",
+        "스마트상점 기술보급 자부담 site:www.sbiz24.kr"
+      ]
+    },
+    {
+      "id": "smart_02",
+      "split": "train",
+      "group_id": "smart_shop",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "이미 주문 장비를 설치한 가게도 스마트상점 사업에 참여할 수 있는지, 기존 설치와 중복 지원 조건을 찾아줘.",
+      "candidate_queries": [
+        "스마트상점 기존 설치 중복 지원",
+        "스마트상점 지원 제외 기존 설치 site:www.semas.or.kr"
+      ]
+    },
+    {
+      "id": "employment_01",
+      "split": "train",
+      "group_id": "employment_insurance",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "자영업자 고용보험료 지원은 가입 절차와 지원금 신청 절차가 같은가요? 공식 자료에서 구분해줘.",
+      "candidate_queries": [
+        "자영업자 고용보험료 지원 가입 신청 절차",
+        "자영업자 고용보험료 지원 신청 site:www.sbiz24.kr"
+      ]
+    },
+    {
+      "id": "employment_02",
+      "split": "train",
+      "group_id": "employment_insurance",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "자영업자 고용보험료 지원을 받다가 사업장을 폐업하면 어떻게 되는지 공식 자료에서 확인해줘.",
+      "candidate_queries": [
+        "자영업자 고용보험료 지원 폐업",
+        "자영업자 고용보험료 지원 폐업 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "consult_01",
+      "split": "train",
+      "group_id": "business_consulting",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "매출이 줄어든 동네 서점입니다. 소상공인 경영 컨설팅의 지원 내용과 신청 조건을 공고에서 찾아줘.",
+      "candidate_queries": [
+        "소상공인 경영 컨설팅 지원 신청 조건",
+        "소상공인 경영 컨설팅 site:www.sbiz24.kr"
+      ]
+    },
+    {
+      "id": "consult_02",
+      "split": "train",
+      "group_id": "business_consulting",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "소상공인 컨설팅 공고를 찾고, 상담 지원과 현금 지급을 구별해줘. 본문에서 확인되지 않은 지원금은 추측하지 마.",
+      "candidate_queries": [
+        "소상공인 컨설팅 지원 내용 비용",
+        "소상공인 컨설팅 자부담 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "online_01",
+      "split": "train",
+      "group_id": "online_sales",
+      "agency": "중소벤처기업부",
+      "as_of": "2026-11-14",
+      "question": "수제 비누 가게의 온라인 판로 지원사업을 찾아 교육과 판매 지원의 차이, 신청 조건을 요약해줘.",
+      "candidate_queries": [
+        "소상공인 온라인 판로 지원 교육 판매",
+        "소상공인 온라인 판로 지원 site:www.mss.go.kr"
+      ]
+    },
+    {
+      "id": "online_02",
+      "split": "train",
+      "group_id": "online_sales",
+      "agency": "중소벤처기업부",
+      "as_of": "2026-11-14",
+      "question": "온라인 판로 지원사업에 참여 중인데 다른 판로 사업도 신청할 수 있는지 중복 참여 제한을 공식 공고로 확인해줘.",
+      "candidate_queries": [
+        "소상공인 온라인 판로 중복 참여 제한",
+        "소상공인 온라인 판로 지원 중복 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "brand_01",
+      "split": "train",
+      "group_id": "local_brand",
+      "agency": "중소벤처기업부",
+      "as_of": "2026-11-14",
+      "question": "지역 특산물로 상품을 만드는 소규모 가게입니다. 로컬크리에이터 지원의 대상과 지원 내용을 공식 공고로 찾아줘.",
+      "candidate_queries": [
+        "로컬크리에이터 지원사업 대상 지원 내용",
+        "로컬크리에이터 지원사업 site:www.sbiz24.kr"
+      ]
+    },
+    {
+      "id": "brand_02",
+      "split": "train",
+      "group_id": "local_brand",
+      "agency": "중소벤처기업부",
+      "as_of": "2026-11-14",
+      "question": "로컬크리에이터 사업의 개인형과 협업형이 어떻게 다른지, 신청 주체를 공식 자료로 비교해줘.",
+      "candidate_queries": [
+        "로컬크리에이터 개인 협업 신청 주체",
+        "로컬크리에이터 협업 지원 site:www.mss.go.kr"
+      ]
+    },
+    {
+      "id": "startup_01",
+      "split": "train",
+      "group_id": "new_business_school",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "아직 사업자등록을 하지 않았습니다. 신사업창업사관학교의 신청 대상과 교육 내용을 공식 공고로 확인해줘.",
+      "candidate_queries": [
+        "신사업창업사관학교 예비창업자 신청 대상 교육",
+        "신사업창업사관학교 신청 대상 site:www.sbiz24.kr"
+      ]
+    },
+    {
+      "id": "startup_02",
+      "split": "train",
+      "group_id": "new_business_school",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "2027년 신사업창업사관학교의 확정 모집기간과 지원금이 이미 공고됐는지 확인해줘. 2026년 공고를 내년 조건으로 쓰지 마.",
+      "candidate_queries": [
+        "2027 신사업창업사관학교 모집 공고",
+        "2027 신사업창업사관학교 site:www.semas.or.kr"
+      ]
+    },
+    {
+      "id": "closure_01",
+      "split": "val",
+      "group_id": "hope_return",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "가게를 정리하려고 합니다. 희망리턴패키지의 점포 철거와 재취업 지원을 공식 자료로 비교해줘.",
+      "candidate_queries": [
+        "희망리턴패키지 점포 철거 재취업 지원",
+        "희망리턴패키지 철거 재취업 site:www.sbiz24.kr"
+      ]
+    },
+    {
+      "id": "closure_02",
+      "split": "val",
+      "group_id": "hope_return",
+      "agency": "소상공인시장진흥공단",
+      "as_of": "2026-11-14",
+      "question": "임대 점포가 아니라 자기 소유 점포를 정리할 때 점포 철거비를 지원받을 수 있는지 공식 조건을 찾아줘.",
+      "candidate_queries": [
+        "희망리턴패키지 자가 점포 철거비 제외",
+        "희망리턴패키지 자가건물 철거 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "market_01",
+      "split": "val",
+      "group_id": "traditional_market",
+      "agency": "중소벤처기업부",
+      "as_of": "2026-11-14",
+      "question": "전통시장 디지털 지원사업은 개별 상인이 신청하나요, 상인회가 신청하나요? 공식 공고에서 신청 주체를 확인해줘.",
+      "candidate_queries": [
+        "전통시장 디지털 지원사업 신청 주체 상인회",
+        "전통시장 디지털 지원 신청 site:www.mss.go.kr"
+      ]
+    },
+    {
+      "id": "seoul_01",
+      "split": "test",
+      "group_id": "seoul_guarantee_fees",
+      "agency": "서울신용보증재단",
+      "as_of": "2026-11-14",
+      "question": "서울신용보증재단 보증을 이용할 때 보증료와 은행 대출이자가 같은 비용인지 공식 자료로 설명해줘.",
+      "candidate_queries": [
+        "서울신용보증재단 보증료 대출 이자",
+        "보증료 site:www.seoulshinbo.co.kr"
+      ]
+    },
+    {
+      "id": "gyeonggi_01",
+      "split": "test",
+      "group_id": "gyeonggi_guarantee_renewal",
+      "agency": "경기신용보증재단",
+      "as_of": "2026-11-14",
+      "question": "경기신용보증재단 보증의 기한 연장 신청 경로와 확인할 조건을 공식 자료에서 찾아줘.",
+      "candidate_queries": [
+        "경기신용보증재단 보증 기한 연장 신청",
+        "기한 연장 site:www.gcgf.or.kr"
+      ]
+    },
+    {
+      "id": "manufacture_01",
+      "split": "test",
+      "group_id": "small_factory_smart",
+      "agency": "중소벤처기업부",
+      "as_of": "2026-11-14",
+      "question": "의류를 직접 만드는 소공인입니다. 스마트제조 지원의 대상과 지원 항목을 공식 공고에서 찾아줘.",
+      "candidate_queries": [
+        "소공인 스마트제조 지원 대상 지원 항목",
+        "소공인 스마트제조 site:www.sbiz24.kr"
+      ]
+    }
+  ]
+}

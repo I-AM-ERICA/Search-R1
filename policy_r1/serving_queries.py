@@ -2,6 +2,19 @@
 import re
 
 
+def fallback_search_query(question):
+    """Recover a missing model query from the user's words, preserving constraints."""
+    if question.startswith("다음은 같은 사용자의 이전 대화입니다.") and "\n현재 사용자 질문: " in question:
+        question = question.rsplit("\n현재 사용자 질문: ", 1)[1]
+    original = " ".join(question.split())[:1000]
+    text = re.sub(r"(?:가|이)\s*받을\s*수\s*있는", " ", original)
+    text = re.sub(r"(?:본문의?\s*)?지원\s*내용과\s*신청\s*조건", " ", text)
+    text = re.sub(r"(?:을|를)?\s*(?:찾아서|찾아\s*줘|찾아\s*주라|요약해\s*줘|요약해\s*주세요|알려\s*줘|알려\s*주세요)[.!?。]*", " ", text)
+    text = re.sub(r"(?<!\S)(?:나는|저는|현재|본문의|본문)(?=\s|$)", " ", text)
+    text = " ".join(text.replace(",", " ").split()).strip(" .!?。")
+    return text or original
+
+
 def requests_official_sources(question):
     # The backend prepends prior conversation. Apply this constraint to the latest
     # question, not to an old mention that might no longer be relevant.

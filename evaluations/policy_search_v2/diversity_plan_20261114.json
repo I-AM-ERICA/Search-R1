@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "purpose": "Diverse policy-family capture proposals; no claim any named program is currently open or that the requested details exist.",
+  "split_axis": "policy family; enforce cross-document exclusion after capture",
+  "review_requirements": [
+    "Never infer facts from the question or program name.",
+    "Retain year, region, limits, exclusions and uncertainty.",
+    "Use second query only if actual first observation lacks necessary evidence.",
+    "Discard train candidates whose evidence exposes held-out policy content.",
+    "Do not turn search failures into mass refusal training data."
+  ],
+  "cases": [
+    {
+      "id": "diverse_ip_01",
+      "split": "train",
+      "group_id": "small_business_ip",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "소상공인 상표 출원 지원은 사업자등록을 한 가게가 신청하는 사업인가요? 2026년 공식 공고의 대상과 지역 조건을 찾아줘.",
+      "candidate_queries": [
+        "2026 소상공인 상표출원 지원 대상 지역",
+        "2026 소상공인 지식재산 상표출원 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_ip_02",
+      "split": "train",
+      "group_id": "small_business_ip",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "소상공인 지식재산 지원에서 상표 출원과 브랜드 개발의 지원 내용이 어떻게 다른지 2026년 공고로 비교해줘.",
+      "candidate_queries": [
+        "2026 소상공인 지식재산 상표 브랜드 개발 지원",
+        "2026 소상공인 IP 브랜드 개발 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_strong_01",
+      "split": "train",
+      "group_id": "strong_small_business",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "2026년 강한 소상공인 성장지원사업의 신청 대상과 지원 분야를 찾아줘. 소공인이나 예비창업자도 같은 조건인지 확인해줘.",
+      "candidate_queries": [
+        "2026 강한 소상공인 성장지원 신청 대상 분야",
+        "2026 강한 소상공인 성장지원 모집 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_strong_02",
+      "split": "train",
+      "group_id": "strong_small_business",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "강한 소상공인 성장지원에서 선정 단계별 지원 내용과 신청기간을 2026년 공식 자료로 확인해줘.",
+      "candidate_queries": [
+        "2026 강한 소상공인 단계별 지원 신청기간",
+        "2026 강한 소상공인 단계 지원 site:mss.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_long_01",
+      "split": "train",
+      "group_id": "long_lived_store",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "2026년 백년가게와 백년소공인의 업력 조건과 대상 업종을 공식 공고에서 구분해줘.",
+      "candidate_queries": [
+        "2026 백년가게 백년소공인 업력 조건",
+        "2026 백년가게 백년소공인 모집 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_long_02",
+      "split": "train",
+      "group_id": "long_lived_store",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "백년가게로 선정되면 어떤 지원을 받는지, 지원금이 자동 지급되는지 2026년 공고의 내용을 확인해줘.",
+      "candidate_queries": [
+        "2026 백년가게 선정 지원내용 지원금",
+        "2026 백년가게 지원내용 site:semas.or.kr"
+      ]
+    },
+    {
+      "id": "diverse_coop_01",
+      "split": "train",
+      "group_id": "cooperative_collaboration",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "2026년 소상공인 협업활성화 공동사업은 개별 가게가 단독으로 신청할 수 있나요? 신청 주체와 구성 요건을 확인해줘.",
+      "candidate_queries": [
+        "2026 소상공인 협업활성화 공동사업 신청 주체",
+        "2026 소상공인 협업활성화 공동사업 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_coop_02",
+      "split": "train",
+      "group_id": "cooperative_collaboration",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "소상공인 협업활성화 사업에서 공동장비와 공동마케팅 지원의 범위를 2026년 공고로 비교해줘.",
+      "candidate_queries": [
+        "2026 소상공인 협업활성화 공동장비 공동마케팅",
+        "2026 소상공인 협동조합 공동사업 지원내용 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_voucher_01",
+      "split": "train",
+      "group_id": "business_stability_voucher",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "2026년 소상공인 경영안정바우처의 매출 기준과 지원 한도를 공식 자료에서 확인해줘. 이전 연도 사업과 구분해줘.",
+      "candidate_queries": [
+        "2026 소상공인 경영안정바우처 매출 기준 지원금",
+        "2026 경영안정바우처 공고 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_voucher_02",
+      "split": "train",
+      "group_id": "business_stability_voucher",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "2026년 경영안정바우처를 공과금과 보험료에 사용할 수 있는지, 사용기한은 언제인지 공식 공고를 찾아줘.",
+      "candidate_queries": [
+        "2026 경영안정바우처 사용처 사용기한",
+        "2026 경영안정바우처 공과금 보험료 site:mss.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_energy_01",
+      "split": "train",
+      "group_id": "energy_efficient_equipment",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "2026년 소상공인 고효율기기 지원에서 지원하는 기기 종류와 에너지등급 조건을 찾아줘.",
+      "candidate_queries": [
+        "2026 소상공인 고효율기기 지원 종류 등급",
+        "2026 소상공인 고효율기기 지원 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_energy_02",
+      "split": "train",
+      "group_id": "energy_efficient_equipment",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "카페에서 이미 구입한 냉난방기도 2026년 소상공인 고효율기기 지원 대상인지 구매일 기준과 증빙 요건을 확인해줘.",
+      "candidate_queries": [
+        "2026 소상공인 고효율기기 구매일 증빙",
+        "2026 소상공인 고효율기기 소급 구매 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_disaster_01",
+      "split": "val",
+      "group_id": "disaster_insurance",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "소상공인 상가 풍수해보험 지원은 임차인과 건물 소유자의 보장 대상이 같은가요? 공식 자료로 구분해줘.",
+      "candidate_queries": [
+        "소상공인 풍수해보험 임차인 소유자 보장 대상",
+        "소상공인 풍수해보험 임차인 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_disaster_02",
+      "split": "val",
+      "group_id": "disaster_insurance",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "소상공인 풍수해보험 보험료 지원이 전국 동일한지 지역별 추가지원이 있는지 2026년 공식 공고로 비교해줘.",
+      "candidate_queries": [
+        "2026 소상공인 풍수해보험 보험료 지역 지원",
+        "2026 소상공인 풍수해 보험료 지원 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_fire_01",
+      "split": "val",
+      "group_id": "traditional_market_fire",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "전통시장 화재공제료 지원은 어떤 점포가 신청하며 어떤 비용을 지원하는지 2026년 공식 공고로 확인해줘.",
+      "candidate_queries": [
+        "2026 전통시장 화재공제료 지원 대상",
+        "2026 전통시장 화재공제료 지원 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_fire_02",
+      "split": "val",
+      "group_id": "traditional_market_fire",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "전통시장 화재공제료 지원은 가입 전에 신청해야 하나요? 2026년 공고의 가입 시점과 접수 절차를 확인해줘.",
+      "candidate_queries": [
+        "2026 전통시장 화재공제료 가입 신청 절차",
+        "2026 전통시장 화재공제 가입일 지원 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_restart_01",
+      "split": "val",
+      "group_id": "hope_return",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "2026년 희망리턴패키지 재기사업화 경영개선과 재창업 지원은 신청 대상이 어떻게 다른가요?",
+      "candidate_queries": [
+        "2026 희망리턴패키지 재기사업화 경영개선 재창업 대상",
+        "2026 희망리턴패키지 재기사업화 site:bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "diverse_restart_02",
+      "split": "val",
+      "group_id": "hope_return",
+      "agency": "공고별 소관기관 확인 필요",
+      "as_of": "2026-11-14",
+      "question": "2026년 희망리턴패키지 재기사업화 지원의 자부담과 정부지원 한도를 확인해줘. 이전 연도 기준과 혼동하지 말아줘.",
+      "candidate_queries": [
+        "2026 희망리턴패키지 재기사업화 자부담 정부지원 한도",
+        "2026 희망리턴패키지 재기사업화 자부담 site:mss.go.kr"
+      ]
+    }
+  ]
+}

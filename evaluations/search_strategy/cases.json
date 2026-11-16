@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "purpose": "Exploratory Korean search diagnostic, not a held-out benchmark. Several rule questions were used during debugging. No sources or answers are injected into model input.",
+  "cases": [
+    {
+      "id": "common_eligibility",
+      "question": "소상공인시장진흥공단 정책자금의 공통 지원 자격과 제외업종을 공식 자료로 확인해줘.",
+      "type": "known_rule",
+      "review_points": [
+        "일반 기준과 예외 업종을 구분",
+        "제외업종과 추가 확인 사항을 설명"
+      ]
+    },
+    {
+      "id": "cafe_five",
+      "question": "상시근로자가 정확히 5명인 카페는 소상공인시장진흥공단 정책자금의 근로자 수 조건을 충족하나요? 공식 자료를 찾아 판단해줘.",
+      "type": "boundary",
+      "review_points": [
+        "5인 미만과 이하를 구분",
+        "이 조건 판단을 전체 지원사업 불가로 확대하지 않음"
+      ]
+    },
+    {
+      "id": "cafe_four",
+      "question": "상시근로자 4명인 카페입니다. 소진공 정책자금의 근로자 수 기준을 충족하는지 공식 자료를 찾아줘. 이것만으로 최종 대출 승인까지 확정할 수 있나요?",
+      "type": "boundary",
+      "review_points": [
+        "인원 기준과 전체 자격 및 승인 여부를 구분"
+      ]
+    },
+    {
+      "id": "guarantee_process",
+      "question": "소진공 보증서부 대리대출은 어느 기관에 어떤 순서로 신청하나요? 공식 자료로 기관별 역할을 설명해줘.",
+      "type": "procedure",
+      "review_points": [
+        "소진공 확인서 → 보증기관 보증서 → 금융기관 대출",
+        "직접대출 절차와 혼합하지 않음"
+      ]
+    },
+    {
+      "id": "direct_process",
+      "question": "소진공 직접대출의 신청, 심사, 약정과 실행 순서를 공식 자료로 확인해줘. 온라인 신청 경로도 알려줘.",
+      "type": "procedure",
+      "review_points": [
+        "소진공 온라인 신청·현장실사·약정·실행",
+        "실제 확인한 신청 경로만 표시"
+      ]
+    },
+    {
+      "id": "compare_loans",
+      "question": "소상공인 정책자금의 보증서부 대리대출과 직접대출은 담당 기관과 진행 순서가 어떻게 다른가요? 공식 근거를 찾아 비교해줘.",
+      "type": "comparison",
+      "review_points": [
+        "보증기관과 금융기관의 역할을 직접대출과 구별",
+        "두 절차 모두 설명"
+      ]
+    },
+    {
+      "id": "current_cafe",
+      "question": "서울에서 카페를 운영합니다. 2026년 11월 14일 기준 신청 가능한 소상공인 지원사업을 공식 공고에서 찾아 지원 내용과 신청 조건을 알려줘.",
+      "type": "discovery_time",
+      "review_points": [
+        "공고의 연도·지역·신청기간 실제 확인",
+        "카페 업종 포함 여부 확인",
+        "접수 상태 미확인 시 명시"
+      ]
+    },
+    {
+      "id": "guarantee_and_fund",
+      "question": "서울신용보증재단의 소상공인 보증과 소진공 정책자금 대출은 같은 제도인가요? 두 기관의 공식 자료를 각각 찾아 차이와 신청 경로를 설명해줘.",
+      "type": "multi_source",
+      "review_points": [
+        "두 기관 자료가 실제로 필요한 문항",
+        "보증과 대출의 역할·연계 여부를 근거로 구별"
+      ]
+    },
+    {
+      "id": "seoul_vs_gyeonggi",
+      "question": "사업장은 경기도이고 거주지는 서울인 카페 사장입니다. 서울신용보증재단 소상공인 보증을 신청할 수 있는지 사업장 소재지 조건을 공식 자료에서 확인해줘.",
+      "type": "regional_constraint",
+      "review_points": [
+        "거주지와 사업장 소재지 구별",
+        "해당 제도의 실제 조건 확인"
+      ]
+    },
+    {
+      "id": "amount_unknown",
+      "question": "소진공 정책자금을 알아보고 있어요. 카페라는 정보만으로 제가 받을 정확한 대출금액을 알 수 있나요? 공식 자료를 찾아 한도와 실제 승인금액을 구분해줘.",
+      "type": "insufficient_context",
+      "review_points": [
+        "정확한 개인 승인금액 추측 금지",
+        "대출 종류·심사·한도와 확정액 구별"
+      ]
+    },
+    {
+      "id": "restaurant_exclusion",
+      "question": "일반 카페와 유흥주점은 소진공 정책자금 제외업종 기준이 같은가요? 공식 자료를 찾아 업종 조건을 비교해줘.",
+      "type": "industry_constraint",
+      "review_points": [
+        "업종·제외 기준을 근거로 구별",
+        "이름만으로 최종 자격 단정 금지"
+      ]
+    },
+    {
+      "id": "manufacturing_nine",
+      "question": "상시근로자 9명인 제조업체와 9명인 카페는 소진공 정책자금의 근로자 수 기준이 어떻게 다른가요? 공식 자료로 확인해줘.",
+      "type": "boundary",
+      "review_points": [
+        "제조업 10인 미만과 일반 5인 미만의 적용을 구별"
+      ]
+    }
+  ]
+}

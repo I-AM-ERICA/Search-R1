@@ -13,7 +13,8 @@ import time
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlsplit
 from urllib.request import Request, build_opener, HTTPRedirectHandler
-from .official_pages import official_url, public_page_url, fetch_official_page, fetch_public_page, PageUnavailable
+from .official_pages import (official_url, public_page_url, fetch_official_page, fetch_public_page,
+                             PageUnavailable, unsupported_document_url)
 
 
 class SearchUnavailable(RuntimeError):
@@ -83,11 +84,16 @@ def unusable_evidence(url, snippet):
 
 class SerpAPIRetriever:
     def __init__(self, api_key=None, timeout=15.0, cache_size=128, cache_ttl=300.0, opener=None,
-                 engine="google", page_fetcher=None, require_page_evidence=False):
+                 engine="google", page_fetcher=None, require_page_evidence=False, official_only=False,
+                 snippet_only=False):
         if engine not in {"google", "naver"}:
             raise ValueError("Search engine must be google or naver")
         self.engine = engine
         self.require_page_evidence = require_page_evidence
+        if snippet_only and require_page_evidence:
+            raise ValueError("snippet_only cannot require page evidence")
+        self.snippet_only = snippet_only
+        self.official_only = official_only
         self._fetch_page = page_fetcher or (fetch_public_page if require_page_evidence else fetch_official_page)
         self._key = api_key or os.environ.get("SERPAPI_API_KEY", "")
         if not self._key.strip():
@@ -107,6 +113,8 @@ class SerpAPIRetriever:
             raise PageUnavailable("deadline")
         if not public_page_url(url) or unusable_evidence(url, ""):
             raise PageUnavailable("unsupported_url")
+        if unsupported_document_url(url):
+            raise PageUnavailable("unsupported_resource")
         with self._lock:
             cached = self._pages.get(url)
             if cached and time.monotonic() - cached[0] < self._cache_ttl:
@@ -200,6 +208,7 @@ class SerpAPIRetriever:
         if not isinstance(organic, list):
             raise SearchUnavailable("SerpAPI returned an invalid results structure", code="INVALID_RESULTS", search_id=search_id)
         hits, seen, rejected, page_failures = [], set(), {}, {}
+        candidate_trace = []
         page_attempts = 0
         def reject(reason):
             rejected[reason] = rejected.get(reason, 0) + 1
@@ -216,12 +225,26 @@ class SerpAPIRetriever:
             if not url or url in seen or not isinstance(title, str) or not title.strip():
                 reject("invalid_or_duplicate_link_or_title")
                 continue
+            trace = {"rank": rank, "url": url, "title": title.strip()[:300],
+                     "official_host": official_url(url)}
+            if len(candidate_trace) < 100:
+                candidate_trace.append(trace)
             evidence_kind = "search_snippet"
+            if self.official_only and not official_url(url):
+                trace["status"] = "unverified_domain"
+                reject("unverified_domain")
+                continue
             if self.require_page_evidence:
                 if not public_page_url(url) or unusable_evidence(url, ""):
+                    trace["status"] = "unreadable_url"
                     reject("unreadable_url")
                     continue
+                if unsupported_document_url(url):
+                    trace["status"] = "unsupported_resource"
+                    reject("unsupported_resource")
+                    continue
                 if page_attempts >= 3:
+                    trace["status"] = "page_budget"
                     reject("page_budget")
                     continue
                 page_attempts += 1
@@ -230,27 +253,33 @@ class SerpAPIRetriever:
                     snippet = self._read_page(url, min(8, remaining))
                     evidence_kind = "official_page_excerpt" if official_url(url) else "page_excerpt"
                 except PageUnavailable as error:
+                    trace.update(status="page_unavailable", failure_reason=str(error), failure_details=error.details)
                     page_failures[str(error)] = page_failures.get(str(error), 0) + 1
                     reject("page_unavailable")
                     continue
-            elif (not isinstance(snippet, str) or not snippet.strip()) and official_url(url) and page_attempts < 2:
+            elif (not self.snippet_only and (not isinstance(snippet, str) or not snippet.strip())
+                  and official_url(url) and page_attempts < 2):
                 page_attempts += 1
                 remaining = (timeout - (time.monotonic() - started)) if timeout is not None else 16 - (page_attempts - 1) * 8
                 try:
                     snippet = self._fetch_page(url, timeout=min(8, remaining))
                     evidence_kind = "official_page_excerpt"
                 except PageUnavailable as error:
+                    trace.update(failure_reason=str(error), failure_details=error.details)
                     page_failures[str(error)] = page_failures.get(str(error), 0) + 1
             if not isinstance(snippet, str) or not snippet.strip():
+                trace["status"] = "empty_snippet"
                 reject("empty_snippet")
                 continue
             reason = unusable_evidence(url, snippet)
             if reason:
+                trace["status"] = reason
                 reject(reason)
                 continue
             seen.add(url)
             is_page = evidence_kind in {"official_page_excerpt", "page_excerpt"}
             title, snippet = title.strip()[:300], snippet.strip()[:5000 if is_page else 2000]
+            trace.update(status="accepted", evidence_kind=evidence_kind, body_chars=len(snippet))
             label = (("공식 HTML" if evidence_kind == "official_page_excerpt" else "HTML")
                      + " 본문 발췌(일부; 첨부파일 미확인)" if is_page else "검색 요약(원문 미확인)")
             hits.append({"id": "web_" + hashlib.sha256(url.encode()).hexdigest()[:16],
@@ -260,10 +289,12 @@ class SerpAPIRetriever:
         params_echo = payload.get("search_parameters")
         self.last_diagnostics = {
             "engine": self.engine, "result_field": result_field, "cache_hit": False,
+            "snippet_only": self.snippet_only,
             "search_id": search_id, "provider_empty_result": empty_success,
             "result_count": len(organic), "usable_results": len(hits),
             "rejected": rejected,
             "page_fetch_attempts": page_attempts, "page_fetch_failures": page_failures,
+            "candidate_trace": candidate_trace,
             "query_matches_response": params_echo.get(query_field) == query if isinstance(params_echo, dict) else None,
             "elapsed_seconds": round(time.monotonic() - started, 3),
         }

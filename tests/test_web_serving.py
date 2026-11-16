@@ -24,6 +24,27 @@ def organic():
         {"title": "다른 공고", "link": "https://example.go.kr/notice/2", "snippet": "공식 안내 확인"}]}
 
 
+def test_snippet_only_never_fetches_pages_even_for_missing_official_snippet():
+    payload={'web_results':[
+        {'title':'민간 결과','link':'https://example.com/a','snippet':'먼저 반환된 요약'},
+        {'title':'공식 빈 요약','link':'https://www.semas.or.kr/notice','snippet':None},
+        {'title':'공식 요약','link':'https://www.mss.go.kr/a','snippet':'뒤에 반환된 요약'}]}
+    requests=[]
+    def request(req,timeout):
+        requests.append(parse_qs(urlsplit(req.full_url).query)['query'][0])
+        return io.BytesIO(json.dumps(payload).encode())
+    def forbidden(*args,**kwargs):raise AssertionError('Must never fetch a page')
+    search=SerpAPIRetriever('dummy',engine='naver',opener=request,page_fetcher=forbidden,snippet_only=True)
+    hits=search.search('원래 모델 검색어',3)
+    assert requests==['원래 모델 검색어']
+    assert [h['title'] for h in hits]==['민간 결과','공식 요약']
+    assert all(h['evidence_kind']=='search_snippet' for h in hits)
+    assert search.last_diagnostics['page_fetch_attempts']==0
+    assert search.last_diagnostics['rejected']['empty_snippet']==1
+    with pytest.raises(ValueError,match='cannot require'):
+        SerpAPIRetriever('dummy',snippet_only=True,require_page_evidence=True)
+
+
 def test_serpapi_request_results_cache_and_provenance():
     requests = []
     def open_request(request, timeout):

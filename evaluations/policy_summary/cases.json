@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "purpose": "6-case exploratory controlled summary comparison; not a representative policy benchmark",
+  "captured_at_utc": "2026-11-14T07:18:54.100937+00:00",
+  "source_count": 1,
+  "documents": [
+    {
+      "id": "eligibility",
+      "heading": "공통 지원 자격",
+      "text": "공통 지원 자격\n｢소상공인기본법｣상 소상공인 : 상시근로자 5인 미만 업체 (제조업, 건설업, 운수업, 광업 : 상시근로자 10인 미만 업체)\n제외업종 : 유흥 향락 업종, 전문업종, 금융업, 보험업, 부동산업 등",
+      "source_url": "https://www.semas.or.kr/web/SUP01/SUP0103/SUP010301.kmdc",
+      "source_title": "소상공인시장진흥공단 소상공인정책자금",
+      "sha256": "7cf0bfd95c75178013c7c1754cafe43ac36ce67cae9c55bf61c34a41ce53f5a8"
+    },
+    {
+      "id": "procedure",
+      "heading": "융자절차와 신청·접수",
+      "text": "융자절차\n대리대출\n보증서부 대출\n01\n확인서 신청‧접수\n(소진공-온라인접수)\n지원대상 여부 판단\n02\n(보증서 신청‧발급)\n(보증기관-온라인/방문접수)\n신용‧사업성 평가 후 보증서 발급\n03\n대출 신청‧실행\n(금융기관-방문 접수)\n보증서를 통해 대출\n신용·담보부 대출\n01\n확인서 신청‧접수\n(소진공-온라인접수)\n지원대상 여부 판단\n02\n대출 신청‧실행\n(금융기관-방문 접수)\n신용‧담보 평가 후 대출\n직접대출\n직접대출\n01\n신청‧접수\n(소진공-온라인접수)\n직접대출신청\n02\n대출심사\n(소진공-현장실사)\n사업성, 시장성, 경영능력, 신용도 등 기업평가\n03\n약정체결 및 실행\n(소진공-전자약정 또는 대면약정)\n약정 체결 후 대출실행\n\n신청·접수\n소상공인정책자금(\nhttps://ols.semas.or.kr\n)을 통한 온라인 신청",
+      "source_url": "https://www.semas.or.kr/web/SUP01/SUP0103/SUP010301.kmdc",
+      "source_title": "소상공인시장진흥공단 소상공인정책자금",
+      "sha256": "c47fafe12f0371b200af1a766fc2c577eb5434f0589261a83ea47949b59e3309"
+    }
+  ],
+  "cases": [
+    {
+      "id": "eligibility_summary",
+      "document_id": "eligibility",
+      "question": "카페 사장에게 공통 지원 자격과 제외업종을 2~3문장으로 요약해줘. 이 내용만으로 신청 가능 여부를 확정할 수 있는지도 설명해줘.",
+      "review_points": [
+        "일반 업종의 근로자 기준을 정확히 설명",
+        "예외 업종의 별도 기준을 일반 카페에 적용하지 않음",
+        "제외업종을 설명",
+        "이 발췌만으로 최종 신청 가능 여부를 확정하지 않음"
+      ]
+    },
+    {
+      "id": "boundary",
+      "document_id": "eligibility",
+      "question": "상시근로자가 정확히 5명인 카페는 이 문서의 근로자 수 조건을 충족하나요? 숫자와 조건을 근거로 설명해줘.",
+      "review_points": [
+        "5인 미만과 5인 이하를 구분",
+        "카페에 제조업 등 10인 미만 예외를 적용하지 않음",
+        "전체 제도나 다른 지원사업까지 불가능하다고 확대하지 않음"
+      ]
+    },
+    {
+      "id": "insufficient_evidence",
+      "document_id": "eligibility",
+      "question": "이 자료만 보고 내가 받을 정확한 지원 금액과 지금 접수 중인지 알려줘.",
+      "review_points": [
+        "금액과 현재 접수 상태가 제공 본문에 없음을 명시",
+        "임의 금액·기간·현재 모집 여부를 만들지 않음",
+        "확인이 필요한 공고 정보를 안내"
+      ]
+    },
+    {
+      "id": "guarantee_steps",
+      "document_id": "procedure",
+      "question": "보증서부 대리대출은 어디에 어떤 순서로 신청하나요? 기관별 역할을 쉽게 요약해줘.",
+      "review_points": [
+        "소진공 확인서 신청·접수 → 보증기관 보증서 신청·발급 → 금융기관 대출 신청·실행 순서",
+        "기관별 심사와 역할을 바꾸지 않음",
+        "승인이나 지급을 보장하지 않음"
+      ]
+    },
+    {
+      "id": "direct_steps",
+      "document_id": "procedure",
+      "question": "직접대출의 신청부터 실행까지 절차와 신청 경로를 3문장 이내로 요약해줘.",
+      "review_points": [
+        "소진공 온라인 신청·접수, 현장실사 기업평가, 약정 후 실행",
+        "온라인 신청 경로를 제공된 자료에 근거해 설명",
+        "보증기관·은행 단계와 혼동하지 않음"
+      ]
+    },
+    {
+      "id": "compare_paths",
+      "document_id": "procedure",
+      "question": "보증서부 대리대출과 직접대출의 차이를 기관과 진행 순서 중심으로 비교해줘.",
+      "review_points": [
+        "대리대출의 보증기관·금융기관 역할 설명",
+        "직접대출의 소진공 심사·약정·실행 설명",
+        "금리·한도 등 자료에 없는 비교를 지어내지 않음"
+      ]
+    }
+  ]
+}

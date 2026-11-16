@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 
 from .config import Config
 from .rollout import collect_rollout, prompt_ids, RolloutCancelled
-from .serving_queries import clean_search_query, broader_search_query, requests_official_sources
+from .serving_queries import clean_search_query, broader_search_query, requests_official_sources, fallback_search_query
 from .official_pages import official_url
 from .evidence_focus import focus_official_excerpt
 from .page_summary import previous_summary_urls, page_observations, link_only_answer
@@ -94,7 +94,7 @@ def load_actor(checkpoint):
 
 class ObservedSearch:
     def __init__(self, retriever, should_stop, deadline, context_prefix="", max_requests=2, official_only=False,
-                 tokenizer=None, observation_budget=768):
+                 tokenizer=None, observation_budget=768, fallback_query="", observation_strategy="concat"):
         self.retriever, self.should_stop, self.deadline = retriever, should_stop, deadline
         self.hits = {}
         self.context_prefix, self.max_requests = context_prefix, max_requests
@@ -104,6 +104,8 @@ class ObservedSearch:
         self.selection_log = []
         self.focus_log = []
         self.tokenizer, self.observation_budget = tokenizer, observation_budget
+        self.fallback_query = fallback_query
+        self.observation_strategy = observation_strategy
 
     def _request(self, query, top_k):
         if self.should_stop():
@@ -131,11 +133,19 @@ class ObservedSearch:
 
     def search(self, query, top_k):
         query = clean_search_query(query, self.context_prefix)
+        # A metadata-only action cleans to empty. Still perform a real search
+        # using the current user's question, within the same request budget.
+        if not query:
+            query = self.fallback_query
         hits = self._request(query, top_k)
         if not hits:
             broader = broader_search_query(query)
             if broader:
                 hits = self._request(broader, top_k)
+        if self.observation_strategy == "focused_v1":
+            # The shared rollout renderer must receive the complete retrieved
+            # body, just as the SFT compiler does. Do not pre-truncate it here.
+            return hits
         focused = [focus_official_excerpt(hit, query) for hit in hits]
         for hit in focused:
             if hit.get("evidence_focus"):
@@ -184,7 +194,9 @@ class PolicyInference:
         observed = ObservedSearch(self.retriever, should_stop, deadline, context_prefix, config.max_searches,
                                   official_only=requests_official_sources(question),
                                   tokenizer=self.tokenizer if page_mode else None,
-                                  observation_budget=config.max_observation_tokens)
+                                  observation_budget=config.max_observation_tokens,
+                                  observation_strategy=config.observation_strategy,
+                                  fallback_query=fallback_search_query(question))
         initial_hits = None
         previous_urls = previous_summary_urls(question) if page_mode else []
         if previous_urls:
@@ -193,7 +205,7 @@ class PolicyInference:
             pages = self.retriever.read_pages(previous_urls, timeout=max(0, min(24, deadline - time.monotonic())))
             if observed.official_only:
                 pages = [hit for hit in pages if official_url(hit["url"])]
-            initial_hits = page_observations(pages, self.tokenizer, config.max_observation_tokens)
+            initial_hits = pages if config.observation_strategy == "focused_v1" else page_observations(pages, self.tokenizer, config.max_observation_tokens)
             if not initial_hits:
                 raise InferenceFailure("Unable to read previous source pages; no page evidence to summarize")
             observed.hits.update((hit["id"], hit) for hit in initial_hits)

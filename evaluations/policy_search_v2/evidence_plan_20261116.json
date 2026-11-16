@@ -1,0 +1,378 @@
+{
+  "schema_version": 1,
+  "purpose": "source-discovered candidates; real capture and semantic review still required",
+  "split_axis": "policy_family; preserve all historical assignments",
+  "cases": [
+    {
+      "id": "evidence_20261116_online01",
+      "split": "train",
+      "group_id": "online_sales",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 소상공인 온라인쇼핑몰 판매지원과 라이브커머스 제작·운영지원은 판매를 돕는 방식이 어떻게 다른가요? 두 공고를 찾아 비교해줘.",
+      "candidate_queries": [
+        "2025 소상공인 온라인쇼핑몰 판매지원 site:www.bizinfo.go.kr",
+        "2025 소상공인 라이브커머스 제작 운영지원 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_online02",
+      "split": "train",
+      "group_id": "online_sales",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "소상공인이 2025년 중소기업 마케팅 사업의 '온라인 판로 종합지원'과 소상공인 '라이브커머스 제작·운영지원'에 같은 자격으로 신청할 수 있었나요? 두 공고의 대상 범위를 구분해줘.",
+      "candidate_queries": [
+        "2025 중소기업 마케팅 온라인 판로 종합지원 대상 site:www.bizinfo.go.kr",
+        "2025 라이브커머스 제작 운영지원 소상공인 대상 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_online03",
+      "split": "train",
+      "group_id": "online_sales",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2026년 소상공인 온라인판로 모집에서 상세페이지 제작과 TV홈쇼핑 입점은 같은 신청 메뉴를 쓰나요? 공고에 적힌 신청 구분을 알려줘.",
+      "candidate_queries": [
+        "2026 소상공인 온라인판로 참여기업 모집 통합 개별신청 site:www.bizinfo.go.kr",
+        "2026 소상공인 온라인판로 상세페이지 TV홈쇼핑 신청 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_online04",
+      "split": "train",
+      "group_id": "online_sales",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 라이브커머스 지원의 통합 안내에는 상시 접수라고 적혀 있는데 개별 모집에도 마감일이 없었나요? 통합 안내와 개별 공고의 기간을 구분해줘.",
+      "candidate_queries": [
+        "2025 라이브커머스 제작 운영지원 통합 공고 상시 site:www.bizinfo.go.kr",
+        "2025년 라이브커머스 제작 운영지원사업 공고 신청기간 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_online05",
+      "split": "train",
+      "group_id": "online_sales",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 중소기업 온라인 판로 종합지원은 신청만 하면 홈쇼핑 방송까지 모두 지원되나요? 선행 지원과 후속 선발을 구분해줘.",
+      "candidate_queries": [
+        "2025 온라인 판로 종합지원 우수기업 홈쇼핑 후속 site:www.bizinfo.go.kr",
+        "2025 중소기업 마케팅 온라인 판로 컨설팅 상품노출 선별 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_online06",
+      "split": "train",
+      "group_id": "online_sales",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2026년 소상공인 온라인판로 모집과 2025년 중소기업 온라인 판로 종합지원의 대상 및 지원 내용을 각각 찾아줘. 비슷한 이름만 보고 같은 사업으로 합치지 마.",
+      "candidate_queries": [
+        "2026 소상공인 온라인판로 지원사업 참여기업 모집공고 site:www.bizinfo.go.kr",
+        "2025 중소기업 온라인 판로 종합지원 소상공인 제외 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_local01",
+      "split": "train",
+      "group_id": "local_brand",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 전국 로컬크리에이터 개인 육성과 충북 로컬크리에이터 소상공인 지원의 지원 항목과 한도를 각각 비교해줘. 두 한도를 합산하지 말아줘.",
+      "candidate_queries": [
+        "2025 로컬크리에이터 개인 육성 사업화자금 site:www.bizinfo.go.kr",
+        "2025 충북 로컬크리에이터 소상공인 지원 항목 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_local02",
+      "split": "train",
+      "group_id": "local_brand",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 로컬크리에이터 개인 육성의 최초 모집과 연장 공고를 찾아 각각의 마감일을 알려줘. 어떤 공고의 날짜인지 함께 밝혀줘.",
+      "candidate_queries": [
+        "2025 로컬크리에이터 개인 육성 모집 공고 2월 site:www.bizinfo.go.kr",
+        "2025 로컬크리에이터 개인 육성 모집 연장 공고 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_local03",
+      "split": "train",
+      "group_id": "local_brand",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 보은 청년 로컬크리에이터 사업과 전국 로컬크리에이터 개인 육성에서 예비창업자를 안내하는 방식이 같나요? 각각의 신청 대상 문구를 찾아 비교해줘.",
+      "candidate_queries": [
+        "2025 보은 청년 로컬크리에이터 예비창업자 모집 site:www.bizinfo.go.kr",
+        "2025 로컬크리에이터 개인 육성 소상공인 대상 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_local04",
+      "split": "train",
+      "group_id": "local_brand",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 부산 청년 로컬 크리에이터 콘텐츠 제작에서 인스타형과 유튜브형의 지원 한도, 지역 요건, 접수 방법을 알려줘. 한도를 확정 지급액으로 표현하지 마.",
+      "candidate_queries": [
+        "2025 부산 청년 로컬 크리에이터 콘텐츠 제작 지원 인스타 유튜브 site:www.bizinfo.go.kr",
+        "부산 청년 로컬 크리에이터 콘텐츠 제작 2025 신청 방법 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_local05",
+      "split": "train",
+      "group_id": "local_brand",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2026년 춘천 로컬크리에이터 성장 지원과 구미 로컬팩 모집에서 사업장 지역과 창업 단계 조건을 각각 확인해줘. 한 지역의 조건을 다른 지역에 적용하지 마.",
+      "candidate_queries": [
+        "2026 춘천 로컬크리에이터 성장 지원 창업기업 모집 site:www.bizinfo.go.kr",
+        "2026 구미 소상공인 로컬팩 로컬 크리에이터 모집 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_local06",
+      "split": "train",
+      "group_id": "local_brand",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2026년 경북 로컬 체인지업과 춘천 로컬크리에이터 성장 지원의 사업화 지원 및 접수 경로를 각각 찾아줘. 두 공고가 같은 기관의 같은 사업인지도 구분해줘.",
+      "candidate_queries": [
+        "2026 경북 로컬 체인지업 로컬크리에이터 모집 site:www.bizinfo.go.kr",
+        "2026 춘천 로컬크리에이터 성장 지원 접수 사업화 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_coop01",
+      "split": "train",
+      "group_id": "cooperative_collaboration",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 소상공인 협업활성화 조합형과 상권형은 신청 시스템이 같나요? 유형별 대상과 접수처를 비교해줘.",
+      "candidate_queries": [
+        "2025 소상공인 협업활성화 조합형 공고 신청 site:www.bizinfo.go.kr",
+        "2025 소상공인 협업활성화 상권형 협업체 모집 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_coop02",
+      "split": "train",
+      "group_id": "cooperative_collaboration",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "조합원이 10명이고 그중 소상공인은 4명인 협동조합입니다. 2025년 협업활성화 조합형 공고의 구성 비율 조건을 충족하나요? 최종 선정 여부와 구분해서 답해줘.",
+      "candidate_queries": [
+        "2025 협업활성화 조합형 소상공인 구성 비율 site:www.bizinfo.go.kr",
+        "2025 소상공인 협업활성화 공동사업 수정 구성 협업체 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_coop03",
+      "split": "train",
+      "group_id": "cooperative_collaboration",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 협업활성화 조합형의 공동장비를 신청할 때 장비에 추가로 부착해야 하는 것이 있나요? 지원 비용과 별도 이행 조건을 구분해줘.",
+      "candidate_queries": [
+        "2025 협업활성화 조합형 공동장비 단말기 site:www.bizinfo.go.kr",
+        "2025 소상공인 조합형 공동장비 신청 IoT site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_coop04",
+      "split": "train",
+      "group_id": "cooperative_collaboration",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 협업활성화 상권형의 골목경영패키지와 동네상권발전소 후속사업화는 대상과 지원 한도가 어떻게 다른가요? 후속사업의 참여 이력 요건도 찾아줘.",
+      "candidate_queries": [
+        "2025 협업활성화 상권형 골목경영패키지 대상 site:www.bizinfo.go.kr",
+        "2025 동네상권발전소 후속사업화 적합 판정 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_ip01",
+      "split": "train",
+      "group_id": "small_business_ip",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 인천 IP창출 종합패키지와 충남 IP 후속 디자인 지원은 어떤 내용을 지원하며, 기존 수혜 이력이 필요한지 각각 확인해줘.",
+      "candidate_queries": [
+        "2025 인천 소상공인 IP창출 종합패키지 브랜드 디자인 site:www.bizinfo.go.kr",
+        "2025 충남 소상공인 IP창출 후속 디자인 지원 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_ip02",
+      "split": "train",
+      "group_id": "small_business_ip",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "경기의 2025년 상표출원 후속지원 공고 제목은 디자인 출원인데 지원 설명이 다른 출원 항목을 말한다면 무엇을 확정할 수 있나요? 제목과 본문을 대조하고 불일치는 밝혀줘.",
+      "candidate_queries": [
+        "2025 경기 소상공인 상표출원 후속지원 디자인 출원 site:www.bizinfo.go.kr",
+        "2025 경기 상표출원 후속지원 디자인 레시피 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_ip03",
+      "split": "train",
+      "group_id": "small_business_ip",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2024년에 상표출원을 지원받은 소상공인입니다. 충남의 2025년 IP 후속 디자인 지원은 과거 어느 연도 수혜자를 대상으로 하나요? 제 경우를 공고 문구로 판단해줘.",
+      "candidate_queries": [
+        "2025 충남 소상공인 상표출원 후속 디자인 수혜자 site:www.bizinfo.go.kr",
+        "2025 충남 IP창출지원 후속지원 디자인 대상 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_ip04",
+      "split": "train",
+      "group_id": "small_business_ip",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 인천 IP창출 종합패키지가 출원 비용만 지원하는지, 컨설팅·교육·디자인 결과물도 포함하는지 공식 본문에서 찾아줘.",
+      "candidate_queries": [
+        "2025 인천 IP창출 종합패키지 컨설팅 교육 디자인 가이드 site:www.bizinfo.go.kr",
+        "2025 인천 소상공인 브랜드 디자인 융합 지원 내용 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_insurance01",
+      "split": "train",
+      "group_id": "employment_insurance",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 전국 소상공인 고용보험료 지원과 서울시 자영업자 고용보험료 지원의 대상·지원비율·신청처를 각각 확인해줘. 두 지원을 합쳐 받을 수 있는지는 별도 근거가 없으면 단정하지 마.",
+      "candidate_queries": [
+        "2025 소상공인 고용보험료 지원사업 공고 site:www.bizinfo.go.kr",
+        "2025 서울 자영업자 고용보험료 지원사업 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_insurance02",
+      "split": "train",
+      "group_id": "employment_insurance",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 경남 1인 자영업자 사회보험망 지원은 공동사업자 두 명에게 각각 지원하나요? 서울시 고용보험료 지원 공고와 대상 및 접수처도 구분해줘.",
+      "candidate_queries": [
+        "2025 경남 1인 자영업자 사회보험망 공동사업자 site:www.bizinfo.go.kr",
+        "2025 서울 자영업자 고용보험료 지원 신청 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_smart01",
+      "split": "train",
+      "group_id": "smart_shop",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 스마트상점 SaaS 독립점포 모집과 프랜차이즈 가맹본부 모집은 참여 주체와 구독 지원 기준이 어떻게 다른가요? 각각의 공고를 찾아줘.",
+      "candidate_queries": [
+        "2025 스마트상점 SaaS 독립점포 모집 연장 site:www.bizinfo.go.kr",
+        "2025 스마트상점 SaaS 프랜차이즈 가맹본부 모집 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_smart02",
+      "split": "train",
+      "group_id": "smart_shop",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "스마트상점의 2025년 통합 모집과 2026년 2차 모집에서 렌탈·소프트웨어 지원 기간이 같나요? 연도와 모집회차를 표시해 비교해줘.",
+      "candidate_queries": [
+        "2025 스마트상점 일반 배리어프리 SaaS 모집 지원 기간 site:www.bizinfo.go.kr",
+        "2026 2차 스마트상점 구입형 렌탈형 SW형 모집 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_return01",
+      "split": "val",
+      "group_id": "hope_return",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "희망리턴패키지 특화취업지원의 2025년 공고와 2026년 수정 공고는 온라인 신청 경로가 같나요? 각 연도의 지원 항목과 접수처를 찾아줘.",
+      "candidate_queries": [
+        "2025 희망리턴패키지 특화취업지원 모집 공고 site:www.bizinfo.go.kr",
+        "2026 희망리턴패키지 특화취업지원 수정 공고 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_return02",
+      "split": "val",
+      "group_id": "hope_return",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 희망리턴패키지 특화취업지원의 나이 조건을 확인해줘. 폐업한 만 69세와 만 70세 신청자를 그 조건만으로 비교하고 최종 자격은 별도로 설명해줘.",
+      "candidate_queries": [
+        "2025 희망리턴패키지 특화취업지원 나이 대상 site:www.bizinfo.go.kr",
+        "2025 희망리턴패키지 특화취업지원 소상공인 모집 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_market01",
+      "split": "val",
+      "group_id": "traditional_market",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 디지털전통시장 지원의 디지털 첫걸음과 디지털 고도화는 지원 한도가 같나요? 시장 단위 한도를 개별 상인의 지급액으로 해석해도 되는지 구분해줘.",
+      "candidate_queries": [
+        "2025 디지털전통시장 첫걸음 고도화 지원 site:www.bizinfo.go.kr",
+        "2025 특성화시장육성 디지털전통시장 대상 한도 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_market02",
+      "split": "val",
+      "group_id": "traditional_market",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 디지털전통시장 사업과 2026년 백년시장 육성은 지원 목적이 어떻게 다른가요? 개별 백년가게 선정과 시장 단위 육성을 혼동하지 말고 두 공고를 비교해줘.",
+      "candidate_queries": [
+        "2025 특성화시장육성 디지털전통시장 지원 내용 site:www.bizinfo.go.kr",
+        "2026 전통시장 육성사업 백년시장 모집 공고 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_safety01",
+      "split": "val",
+      "group_id": "traditional_market",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 2차 전통시장 안전관리패키지에서 영업점포 대비 신청 규모와 화재보험·공제 가입률은 각각 어떤 기준인가요? 두 기준을 하나로 섞지 말아줘.",
+      "candidate_queries": [
+        "2025 2차 전통시장 안전관리패키지 신청 점포 가입률 site:www.bizinfo.go.kr",
+        "2025 전통시장 안전관리패키지지원 대상 조건 site:www.bizinfo.go.kr"
+      ]
+    },
+    {
+      "id": "evidence_20261116_safety02",
+      "split": "val",
+      "group_id": "traditional_market",
+      "agency": "각 공고의 소관기관 및 수행기관 구분",
+      "as_of": "2026-11-16",
+      "question": "2025년 전통시장 안전관리패키지와 디지털전통시장 사업은 같은 지원인가요? 각각의 목적과 대상을 비교하고 보험 가입 조건을 다른 사업에도 적용하지 마.",
+      "candidate_queries": [
+        "2025 전통시장 안전관리패키지지원 공고 site:www.bizinfo.go.kr",
+        "2025 디지털전통시장 육성 공고 지원 내용 site:www.bizinfo.go.kr"
+      ]
+    }
+  ],
+  "review_requirements": [
+    "Do not insert discovery URLs or web-search text into model observations.",
+    "Captured provider results must supply each claim; source research is not a replacement.",
+    "Keep 1 search when sufficient. Retain 2 only when actual first evidence lacks needed facts.",
+    "Provider errors are not empty-result examples. No synthetic empty observations in this dataset.",
+    "Review all returned hits for cross-family leakage, not just cited hits.",
+    "Do not convert failed captures into a large set of generic refusals.",
+    "Question refers to named historical notice; do not claim it is accepting applications today.",
+    "Some official title/body fields conflict. Do not silently repair them.",
+    "Validation is not training; previously debugged cases and their sources remain excluded."
+  ]
+}

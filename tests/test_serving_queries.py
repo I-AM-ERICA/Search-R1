@@ -4,12 +4,32 @@ import pytest
 
 from policy_r1.inference import ObservedSearch
 from policy_r1.rollout import RolloutCancelled
-from policy_r1.serving_queries import clean_search_query, broader_search_query, requests_official_sources
+from policy_r1.serving_queries import clean_search_query, broader_search_query, requests_official_sources, fallback_search_query
 from policy_r1.web_search import SearchUnavailable
 
 
 PREFIX = "기준일: 2026-11-14\n지역: 서울\n업종: 음식점"
 ECHO = "기준일: 2026-11-14 지역: 서울 업종: 음식점 소상공인시장진흥공단 정책자금의 공통 지원 자격을 공식 자료로 확인해줘."
+
+
+def test_empty_model_query_uses_user_topic_without_dropping_real_constraints():
+    question = "카페가 받을 수 있는 소상공인 지원 정책을 찾아서, 본문의 지원 내용과 신청 조건을 요약해줘."
+    assert fallback_search_query(question) == "카페 소상공인 지원 정책"
+    specific = '2026년 부산 카페 제외 업종 site:mss.go.kr "청년 지원"'
+    assert fallback_search_query(specific) == specific
+    history = "다음은 같은 사용자의 이전 대화입니다. 오래된 주제\n현재 사용자 질문: " + question
+    assert fallback_search_query(history) == "카페 소상공인 지원 정책"
+    assert fallback_search_query("요약해줘")
+
+
+def test_metadata_only_search_still_calls_retriever_and_reuses_request_cache():
+    retriever = Retriever()
+    search = ObservedSearch(retriever, lambda: False, time.monotonic()+30, PREFIX,
+                            fallback_query="카페 소상공인 지원 정책")
+    assert search.search(" / ".join(PREFIX.splitlines()), 3)
+    assert search.search(" / ".join(PREFIX.splitlines()), 3)
+    assert retriever.calls == ["카페 소상공인 지원 정책"]
+    assert search.requests == 1
 
 
 @pytest.mark.parametrize("separator", [" ", " / ", "/", " | ", "; ", ", ", "\n"])

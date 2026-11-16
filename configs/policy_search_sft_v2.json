@@ -1,0 +1,48 @@
+{
+  "stage": "prepare_review_and_explicit_train_only",
+  "automatic_training": false,
+  "initialization": "fresh_base_lora; do not resume checkpoint-00150",
+  "model_environment": {
+    "model_name": "naver-hyperclovax/HyperCLOVAX-SEED-Text-Instruct-1.5B",
+    "model_revision": "0728a47d632019a8da5f53b663db1c175dc04115",
+    "load_in_4bit": true,
+    "lora_rank": 8,
+    "lora_alpha": 16,
+    "prompt_language": "ko",
+    "max_prompt_tokens": 768,
+    "max_new_tokens": 512,
+    "max_observation_tokens": 1200,
+    "max_seq_length": 4096,
+    "max_searches": 2,
+    "top_k": 3,
+    "observation_strategy": "focused_v1"
+  },
+  "retrieval_environment": {
+    "engine": "naver",
+    "official_only": true,
+    "require_page_evidence": true,
+    "query_rewriting": false,
+    "automatic_retry": false,
+    "source_attachments": "not_read"
+  },
+  "proposed_sft": {
+    "learning_rate": 2e-05,
+    "epochs": 1,
+    "gradient_accumulation": 8,
+    "max_grad_norm": 1.0,
+    "loss_tokens": "model-generated search and answer only"
+  },
+  "data_gates": {
+    "min_train_records": 120,
+    "min_val_records": 30,
+    "min_supported_two_search_records": 30,
+    "note": "Engineering pilot thresholds, not proof of sufficient data or generalization"
+  },
+  "ppo": {
+    "enabled": false,
+    "next_gate": "SFT-only held-out evaluation, then reward calibration before small PPO",
+    "reference_candidate": "freeze newly evaluated SFT model; separate experiment from original reference",
+    "reward": "policy_reward.py is reviewed offline calibration only; no automatic judge yet"
+  },
+  "observation_selection": "Question and model query only; whole retrieved sections; shared compiler/rollout implementation"
+}

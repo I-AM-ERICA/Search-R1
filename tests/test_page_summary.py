@@ -104,3 +104,22 @@ def test_multiple_sources_reach_model_with_body_text_and_links():
     result = probe(service, "지원", show_answer=True)
     assert result["status"] == "success" and result["source_count"] == 2
     assert "읽은 HTML 본문" in result["trajectory"]["events"][1]["preview"]
+
+
+def test_unconfigured_region_metadata_only_action_recovers_using_actual_question():
+    from test_rollout import ScriptedActor
+    service = engine([])
+    question = "카페가 받을 수 있는 소상공인 지원 정책을 찾아서, 본문의 지원 내용과 신청 조건을 요약해줘."
+    prefix = " / ".join(service._question(question, "지역 미설정", "카페·베이커리").splitlines()[:3])
+    service.actor = ScriptedActor([f"<search>{prefix}</search>",
+        "<answer>가상 사업은 음식점 대상 상담을 지원합니다.</answer>"], service.tokenizer)
+    service.retriever = retriever(lambda *a, **kw: BODY)
+    queries = []
+    original = service.retriever.search
+    def search(query, *a, **kw):
+        queries.append(query)
+        return original(query, *a, **kw)
+    service.retriever.search = search
+    result = service.answer(question, region="지역 미설정", category="카페·베이커리")
+    assert queries == ["카페 소상공인 지원 정책"]
+    assert result["search_requests"] == 1 and result["sources"][0]["url"] == URL

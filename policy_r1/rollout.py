@@ -1,11 +1,11 @@
 # 역할: Actor 생성 → 문서 검색 → 추가 생성 루프와 PPO용 action-token mask를 만듭니다.
 from dataclasses import dataclass
-import html
 
 import torch
 from transformers import GenerationConfig, StoppingCriteria, StoppingCriteriaList
 
 from .protocol import SYSTEM_PROMPT, ENGLISH_SYSTEM_PROMPT, parse_action
+from .observations import observation_ids
 
 
 MODEL_STOP_STRINGS = ("<|endofturn|>", "<|stop|>")
@@ -64,16 +64,6 @@ def prompt_ids(tokenizer, question, config, system_prompt=None):
     return ids
 
 
-def observation_ids(tokenizer, hits, budget):
-    body = "\n".join(f"[{h['id']}] {h['contents']}" for h in hits) or "검색 결과 없음"
-    body_ids = tokenizer.encode(html.escape(body), add_special_tokens=False)
-    prefix = tokenizer.encode("\n<information>\n", add_special_tokens=False)
-    suffix = tokenizer.encode("\n</information>\n", add_special_tokens=False)
-    if budget <= len(prefix) + len(suffix):
-        return None
-    return prefix + body_ids[:budget - len(prefix) - len(suffix)] + suffix
-
-
 @torch.no_grad()
 def collect_rollout(actor, tokenizer, retriever, question, config, sample=True, *, system_prompt=None, should_stop=None,
                     initial_hits=None):
@@ -85,7 +75,7 @@ def collect_rollout(actor, tokenizer, retriever, question, config, sample=True, 
     if initial_hits:
         check_cancelled(None, None)
         budget = min(config.max_observation_tokens, config.max_seq_length - len(ids) - config.max_new_tokens)
-        obs_ids = observation_ids(tokenizer, initial_hits, budget)
+        obs_ids = observation_ids(tokenizer, initial_hits, budget, config.observation_strategy, question=question)
         if obs_ids is None:
             raise ValueError("No room for source pages in the model context")
         ids.extend(obs_ids)
@@ -158,7 +148,7 @@ def collect_rollout(actor, tokenizer, retriever, question, config, sample=True, 
         # Escape untrusted document text and mask every observation token out of the loss.
         budget = min(config.max_observation_tokens,
                      config.max_seq_length - len(ids) - config.max_new_tokens)
-        obs_ids = observation_ids(tokenizer, hits, budget)
+        obs_ids = observation_ids(tokenizer, hits, budget, config.observation_strategy, question=question, query=content)
         if obs_ids is None:
             reason = "context_limit"
             break
